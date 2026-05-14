@@ -42,35 +42,7 @@ Um sistema web moderno e intuitivo para gerenciar membros, dízimos e aniversari
 }
 ```
 
-## 📁 Estrutura do Projeto
 
-```
-sistema-igreja/
-├── src/
-│   ├── components/          # Componentes reutilizáveis
-│   │   ├── Navbar.jsx      # Barra de navegação
-│   │   └── Navbar.css
-│   ├── pages/               # Páginas da aplicação
-│   │   ├── Membros.jsx     # Página de gerenciamento de membros
-│   │   ├── Dizimos.jsx     # Página de controle de dízimos
-│   │   ├── Aniversariantes.jsx  # Página de aniversariantes
-│   │   └── *.css           # Estilos das páginas
-│   ├── services/            # Serviços de API
-│   │   ├── membrosService.js    # CRUD de membros
-│   │   └── dizimosService.js    # CRUD de dízimos
-│   ├── lib/
-│   │   └── supabase.js     # Configuração do cliente Supabase
-│   ├── assets/             # Imagens e assets estáticos
-│   ├── App.jsx             # Componente principal
-│   ├── main.jsx            # Ponto de entrada
-│   └── index.css           # Estilos globais
-├── public/                 # Arquivos públicos
-├── package.json            # Dependências do projeto
-├── vite.config.js         # Configuração do Vite
-├── eslint.config.js       # Configuração do ESLint
-├── vercel.json            # Configuração de deploy
-└── README.md              # Este arquivo
-```
 
 ## 🚀 Como Installar e Executar
 
@@ -106,72 +78,6 @@ npm run dev
 
 A aplicação estará disponível em `http://localhost:5173`
 
-### Build para Produção
-
-```bash
-npm run build
-```
-
-### Preview da Build
-
-```bash
-npm run preview
-```
-
-### Linting
-
-```bash
-npm run lint
-```
-
-## 💾 Estrutura do Banco de Dados (Supabase)
-
-### Tabela: `membros`
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| id | UUID | Identificador único (chave primária) |
-| nome | VARCHAR | Nome completo do membro |
-| email | VARCHAR | Email do membro |
-| telefone | VARCHAR | Telefone para contato |
-| cpf | VARCHAR | CPF do membro |
-| data_nascimento | DATE | Data de nascimento |
-| cep | VARCHAR | CEP do endereço |
-| logradouro | VARCHAR | Rua/avenida |
-| numero | VARCHAR | Número do imóvel |
-| complemento | VARCHAR | Complemento do endereço |
-| bairro | VARCHAR | Bairro |
-| cidade | VARCHAR | Cidade |
-| uf | VARCHAR | Estado (UF) |
-| falecido | BOOLEAN | Indica se o membro é falecido |
-| data_da_morte | DATE | Data do falecimento (se aplicável) |
-| created_at | TIMESTAMP | Data de criação do registro |
-| updated_at | TIMESTAMP | Data da última atualização |
-
-### Tabela: `dizimos`
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| id | UUID | Identificador único (chave primária) |
-| membro_id | UUID | Referência ao membro (FK) |
-| valor | DECIMAL | Valor do dízimo |
-| data | DATE | Data do dízimo |
-| descricao | VARCHAR | Descrição/observações |
-| created_at | TIMESTAMP | Data de criação do registro |
-
-## 🔧 Principais Componentes
-
-### App.jsx
-Define as rotas principais da aplicação:
-- `/` - Página de Membros
-- `/dizimos` - Página de Dízimos
-- `/aniversariantes` - Página de Aniversariantes
-
-### Navbar.jsx
-Componente de navegação com links para as diferentes seções da aplicação.
-
-### Serviços (services/)
-Abstração das chamadas ao Supabase:
-- `membrosService.js` - Funções CRUD para membros
-- `dizimosService.js` - Funções CRUD para dízimos
 
 ## 🔐 Configuração do Supabase
 
