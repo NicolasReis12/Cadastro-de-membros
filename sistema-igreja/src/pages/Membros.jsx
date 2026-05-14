@@ -61,6 +61,13 @@ function Membros() {
         } else {
           delete next[name]
         }
+      } else if (name === 'data_da_morte' && valor) {
+        const dataMorte = new Date(valor)
+        if (dataMorte > new Date()) {
+          next[name] = 'Data não pode ser no futuro'
+        } else {
+          delete next[name]
+        }
       } else {
         delete next[name]
       }
@@ -182,13 +189,20 @@ function Membros() {
 
     setSalvando(true)
     try {
+      // Limpar campos opcionais vazios para null
+      const formLimpo = Object.keys(form).reduce((acc, key) => {
+        const valor = form[key]
+        acc[key] = valor === '' || valor === null ? null : valor
+        return acc
+      }, {})
+
       let error
 
       if (editando) {
-        const response = await updateMembro(form.id, form)
+        const response = await updateMembro(form.id, formLimpo)
         error = response.error
       } else {
-        const { id, ...novoForm } = form
+        const { id, ...novoForm } = formLimpo
         const response = await createMembro(novoForm)
         error = response.error
       }
