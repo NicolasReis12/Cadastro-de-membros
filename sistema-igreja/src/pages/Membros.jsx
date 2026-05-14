@@ -1,7 +1,7 @@
 import { createMembro, getMembros, deleteMembro, updateMembro } from '../services/membrosService'
 import './Membros.css'
 import { useState, useEffect, useContext } from 'react'
-import { validateForm, validateEmail, validateCPF, validatePhone } from '../utils/validation'
+import { validateForm, validateEmail, validateCPF, validatePhone, convertDDMMYYYYtoYYYYMMDD, formatarDataBR, validateDataBR, isDataFutura } from '../utils/validation'
 import { ToastContext } from '../App'
 
 function Membros() {
@@ -21,7 +21,6 @@ function Membros() {
 
   // Validação
   const [erros, setErros] = useState({})
-  const requiredFields = ['nome', 'email', 'telefone', 'cpf', 'data_nascimento', 'cidade']
 
   const initialForm = {
     nome: '', email: '', telefone: '', cpf: '',
@@ -46,9 +45,7 @@ function Membros() {
       const next = { ...prev }
       const valor = value?.toString().trim() ?? ''
 
-      if (requiredFields.includes(name) && !valor) {
-        next[name] = 'Campo obrigatório'
-      } else if (name === 'email' && valor && !validateEmail(valor)) {
+      if (name === 'email' && valor && !validateEmail(valor)) {
         next[name] = 'Email inválido'
       } else if (name === 'cpf' && valor && !validateCPF(valor)) {
         next[name] = 'CPF inválido (11 dígitos)'
@@ -127,9 +124,46 @@ function Membros() {
 
   async function handleChange(e) {
     const { name, value } = e.target
-    const novoForm = { ...form, [name]: value }
+    let novoValor = value
+
+    // Aplicar máscara DD/MM/YYYY nos campos de data
+    if (name === 'data_nascimento' || name === 'data_da_morte') {
+      const apenasNumeros = value.replace(/\D/g, '')
+      let dataFormatada = apenasNumeros
+      
+      if (apenasNumeros.length <= 2) {
+        dataFormatada = apenasNumeros
+      } else if (apenasNumeros.length <= 4) {
+        dataFormatada = apenasNumeros.slice(0, 2) + '/' + apenasNumeros.slice(2)
+      } else if (apenasNumeros.length <= 8) {
+        dataFormatada = apenasNumeros.slice(0, 2) + '/' + apenasNumeros.slice(2, 4) + '/' + apenasNumeros.slice(4, 8)
+      }
+      
+      novoValor = dataFormatada
+      
+      // Validar data quando completa
+      if (apenasNumeros.length === 8) {
+        if (!validateDataBR(dataFormatada)) {
+          setErros(prev => ({ ...prev, [name]: 'Data inválida (DD/MM/YYYY)' }))
+        } else if (isDataFutura(convertDDMMYYYYtoYYYYMMDD(dataFormatada))) {
+          setErros(prev => ({ ...prev, [name]: 'A data não pode ser no futuro' }))
+        } else {
+          setErros(prev => {
+            const newErros = { ...prev }
+            delete newErros[name]
+            return newErros
+          })
+        }
+      }
+    }
+
+    const novoForm = { ...form, [name]: novoValor }
     setForm(novoForm)
-    validarCampo(name, value)
+    
+    // Validar campo se não for data (datas são validadas acima)
+    if (name !== 'data_nascimento' && name !== 'data_da_morte') {
+      validarCampo(name, novoValor)
+    }
 
     // CEP automático
     if (name === 'cep') {
@@ -170,28 +204,54 @@ function Membros() {
   }
 
   function abrirEditar(membro) {
-    setForm(membro)
+    // Converter datas de YYYY-MM-DD para DD/MM/YYYY
+    const membroComDatasFormatadas = { ...membro }
+    if (membro.data_nascimento && membro.data_nascimento.includes('-')) {
+      const [ano, mes, dia] = membro.data_nascimento.split('-')
+      membroComDatasFormatadas.data_nascimento = `${dia}/${mes}/${ano}`
+    }
+    if (membro.data_da_morte && membro.data_da_morte.includes('-')) {
+      const [ano, mes, dia] = membro.data_da_morte.split('-')
+      membroComDatasFormatadas.data_da_morte = `${dia}/${mes}/${ano}`
+    }
+    
+    setForm(membroComDatasFormatadas)
     setErros({})
     setEditando(true)
     setModalAberto(true)
   }
 
   async function salvarMembro() {
-    // Validar formulário
-    const camposObrigatorios = ['nome', 'email', 'telefone', 'cpf', 'data_nascimento', 'cidade']
-    const novosErros = validateForm(form, camposObrigatorios)
+    const novosErros = {}
+
+    // Validar datas
+    if (form.data_nascimento && !validateDataBR(form.data_nascimento)) {
+      novosErros.data_nascimento = 'Data de nascimento inválida'
+    }
+    if (form.data_da_morte && !validateDataBR(form.data_da_morte)) {
+      novosErros.data_da_morte = 'Data de falecimento inválida'
+    }
 
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros)
-      showToast('Por favor, preencha todos os campos obrigatórios corretamente', 'error')
+      showToast('Por favor, corrija os erros nas datas', 'error')
       return
     }
 
     setSalvando(true)
     try {
+      // Converter datas de DD/MM/YYYY para YYYY-MM-DD
+      const formComDatasConvertidas = { ...form }
+      if (form.data_nascimento && form.data_nascimento.includes('/')) {
+        formComDatasConvertidas.data_nascimento = convertDDMMYYYYtoYYYYMMDD(form.data_nascimento)
+      }
+      if (form.data_da_morte && form.data_da_morte.includes('/')) {
+        formComDatasConvertidas.data_da_morte = convertDDMMYYYYtoYYYYMMDD(form.data_da_morte)
+      }
+
       // Limpar campos opcionais vazios para null
-      const formLimpo = Object.keys(form).reduce((acc, key) => {
-        const valor = form[key]
+      const formLimpo = Object.keys(formComDatasConvertidas).reduce((acc, key) => {
+        const valor = formComDatasConvertidas[key]
         acc[key] = valor === '' || valor === null ? null : valor
         return acc
       }, {})
@@ -367,9 +427,7 @@ function Membros() {
 
             <div className="form-grid">
               <div className="form-group">
-                <label>
-                  Nome <span className="required-star">*</span>
-                </label>
+                <label>Nome</label>
                 <input
                   name="nome"
                   value={form.nome}
@@ -380,9 +438,7 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>
-                  Email <span className="required-star">*</span>
-                </label>
+                <label>Email</label>
                 <input
                   name="email"
                   type="email"
@@ -394,9 +450,7 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>
-                  Telefone <span className="required-star">*</span>
-                </label>
+                <label>Telefone</label>
                 <input
                   name="telefone"
                   value={form.telefone}
@@ -408,9 +462,7 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>
-                  CPF <span className="required-star">*</span>
-                </label>
+                <label>CPF</label>
                 <input
                   name="cpf"
                   value={form.cpf}
@@ -422,14 +474,14 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>
-                  Data de nascimento <span className="required-star">*</span>
-                </label>
+                <label>Data de nascimento</label>
                 <input
-                  type="date"
+                  type="text"
                   name="data_nascimento"
                   value={form.data_nascimento}
                   onChange={handleChange}
+                  placeholder="DD/MM/YYYY"
+                  maxLength="10"
                   className={erros.data_nascimento ? 'input-error' : ''}
                 />
                 {erros.data_nascimento && <span className="error-text">{erros.data_nascimento}</span>}
@@ -466,9 +518,7 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>
-                  Cidade <span className="required-star">*</span>
-                </label>
+                <label>Cidade</label>
                 <input
                   name="cidade"
                   value={form.cidade}
@@ -492,10 +542,21 @@ function Membros() {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Data do Falecimento</label>
-                <input type="date" name="data_da_morte" value={form.data_da_morte} onChange={handleChange} />
-              </div>
+              {form.falecido === 'Sim' && (
+                <div className="form-group">
+                  <label>Data do Falecimento</label>
+                  <input
+                    type="text"
+                    name="data_da_morte"
+                    value={form.data_da_morte}
+                    onChange={handleChange}
+                    placeholder="DD/MM/YYYY"
+                    maxLength="10"
+                    className={erros.data_da_morte ? 'input-error' : ''}
+                  />
+                  {erros.data_da_morte && <span className="error-text">{erros.data_da_morte}</span>}
+                </div>
+              )}
             </div>
 
             <div className="modal-actions">

@@ -16,8 +16,7 @@ function Dizimos() {
   const initialForm = {
     nome_membro: '',
     valor: '',
-    data: '',
-    status: ''
+    data: ''
   }
 
   const [form, setForm] = useState(initialForm)
@@ -197,7 +196,6 @@ function Dizimos() {
                 <th>Nome do membro</th>
                 <th>Valor</th>
                 <th>Data</th>
-                <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -208,11 +206,6 @@ function Dizimos() {
                   <td>{d.nome_membro}</td>
                   <td className="valor">{formatarValor(d.valor)}</td>
                   <td>{formatarDataBR(d.data)}</td>
-                  <td>
-                    <span className={`status-badge ${d.status === 'pago' ? 'pago' : 'pendente'}`}>
-                      {d.status === 'pago' ? '✓ Pago' : '⏱ Pendente'}
-                    </span>
-                  </td>
                   <td>
                     <div className="actions">
                       <button className="btn-editar">Editar</button>
@@ -272,19 +265,6 @@ function Dizimos() {
                   className={erros.data ? 'input-error' : ''}
                 />
                 {erros.data && <span className="error-text">{erros.data}</span>}
-              </div>
-
-              <div className="form-group">
-                <label>Status</label>
-                <select
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                >
-                  <option value="">Selecione</option>
-                  <option value="pago">Pago</option>
-                  <option value="pendente">Pendente</option>
-                </select>
               </div>
             </div>
 
