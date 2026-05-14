@@ -70,11 +70,9 @@ function Membros() {
     let error
 
     if (editando) {
-      // ✅ UPDATE usa ID
       const response = await updateMembro(form.id, form)
       error = response.error
     } else {
-      // ✅ REMOVE ID antes de enviar
       const { id, ...novoForm } = form
 
       const response = await createMembro(novoForm)
