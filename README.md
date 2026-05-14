@@ -30,18 +30,6 @@ Um sistema web moderno e intuitivo para gerenciar membros, dízimos e aniversari
 - **Linting:** ESLint
 - **Deploy:** Vercel
 
-## 📦 Dependências Principais
-
-```json
-{
-  "react": "^19.2.5",
-  "react-dom": "^19.2.5",
-  "react-router-dom": "^7.14.2",
-  "@supabase/supabase-js": "^2.104.1",
-  "@tailwindcss/vite": "^4.2.4"
-}
-```
-
 
 
 ## 🚀 Como Installar e Executar
@@ -88,34 +76,5 @@ A aplicação estará disponível em `http://localhost:5173`
 5. Obtenha a URL do projeto e a chave anônima
 6. Configure as variáveis de ambiente do projeto
 
-## 🌐 Deploy
 
-O projeto está configurado para deploy automático na Vercel:
 
-```bash
-npm run build
-npx vercel --prod
-```
-
-## 📝 Variáveis de Ambiente
-
-```env
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_SUPABASE_ANON_KEY=sua_chave_publica_anonima
-```
-
-## 🤝 Contribuindo
-
-Sinta-se livre para fazer fork do projeto, criar uma branch para sua feature e enviar um pull request.
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
-
-## 📧 Contato
-
-Para dúvidas ou sugestões sobre o projeto, entre em contato através do GitHub Issues.
-
----
-
-**Desenvolvido com ❤️ para gerenciar membros de comunidades religiosas**
