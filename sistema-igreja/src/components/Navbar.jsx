@@ -20,7 +20,8 @@ function Navbar() {
       </div>
 
       <div className="menu">
-        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/">Membros</NavLink>
+        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/">Dashboard</NavLink>
+        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/membros">Membros</NavLink>
         <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/dizimos">Dízimos</NavLink>
         <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/aniversariantes">Aniversariantes</NavLink>
       </div>

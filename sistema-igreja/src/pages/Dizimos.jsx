@@ -1,10 +1,15 @@
-import './Dizimos.css';
-import { createDizimos, getDizimos, deleteDizimo } from '../services/dizimosService';
-import { useState, useEffect } from 'react';
+import './Dizimos.css'
+import { createDizimos, getDizimos, deleteDizimo } from '../services/dizimosService'
+import { useState, useEffect, useContext } from 'react'
+import { ToastContext } from '../App'
 
 function Dizimos() {
+  const { showToast } = useContext(ToastContext)
+  
   const [modalAberto, setModalAberto] = useState(false)
   const [dizimos, setDizimos] = useState([])
+  const [carregando, setCarregando] = useState(false)
+  const [salvando, setSalvando] = useState(false)
 
   const initialForm = {
     nome_membro: '',
@@ -20,8 +25,19 @@ function Dizimos() {
   }, [])
 
   async function carregarDizimos() {
-    const { data } = await getDizimos()
-    if (data) setDizimos(data)
+    setCarregando(true)
+    try {
+      const { data, error } = await getDizimos()
+      if (error) {
+        showToast('Erro ao carregar dízimos', 'error')
+        return
+      }
+      if (data) setDizimos(data)
+    } catch (err) {
+      showToast('Erro ao carregar dízimos', 'error')
+    } finally {
+      setCarregando(false)
+    }
   }
 
   function handleChange(e) {
@@ -29,38 +45,52 @@ function Dizimos() {
   }
 
   function abrirModal() {
-    setForm(initialForm) // sempre limpa ao abrir
+    setForm(initialForm)
     setModalAberto(true)
   }
 
   async function cadastrarDizimos() {
-    const { error } = await createDizimos(form)
-
-    if (error) {
-      console.error('Erro ao cadastrar:', error.message)
+    if (!form.nome_membro.trim() || !form.valor || !form.data) {
+      showToast('Por favor, preencha todos os campos obrigatórios', 'error')
       return
     }
 
-    console.log("Cadastrado com sucesso")
+    setSalvando(true)
+    try {
+      const { error } = await createDizimos(form)
 
-    await carregarDizimos()
+      if (error) {
+        showToast(`Erro ao cadastrar: ${error.message}`, 'error')
+        return
+      }
 
-    setForm(initialForm) // limpa depois de salvar
-    setModalAberto(false)
+      showToast('Dízimo cadastrado com sucesso', 'success')
+      await carregarDizimos()
+      setForm(initialForm)
+      setModalAberto(false)
+    } catch (err) {
+      showToast('Erro ao cadastrar dízimo', 'error')
+    } finally {
+      setSalvando(false)
+    }
   }
 
   async function excluirDizimo(id) {
-    if (!window.confirm("Tem certeza que deseja excluir este dízimo?")) return
+    if (!window.confirm('Tem certeza que deseja excluir este dízimo?')) return
 
-    const { error } = await deleteDizimo(id)
+    try {
+      const { error } = await deleteDizimo(id)
 
-    if (error) {
-      console.error('Erro ao deletar:', error.message)
-      return
+      if (error) {
+        showToast(`Erro ao deletar: ${error.message}`, 'error')
+        return
+      }
+
+      showToast('Dízimo excluído com sucesso', 'success')
+      await carregarDizimos()
+    } catch (err) {
+      showToast('Erro ao excluir dízimo', 'error')
     }
-
-    console.log("Deletado com sucesso")
-    await carregarDizimos()
   }
 
   function formatarDataBR(data) {
@@ -76,45 +106,68 @@ function Dizimos() {
     })
   }
 
+  if (carregando && dizimos.length === 0) {
+    return (
+      <div className="page-dizimos">
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Carregando dízimos...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="page-dizimos">
       <div className="dizimos-header">
-        <h2>Cadastro de dízimos</h2>
-        <button onClick={abrirModal} className="btn-cadastrar">
-          Cadastrar dízimo
+        <h2>💰 Cadastro de dízimos</h2>
+        <button onClick={abrirModal} className="btn-cadastrar" disabled={carregando}>
+          + Cadastrar dízimo
         </button>
       </div>
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Nome do membro</th>
-              <th>Valor</th>
-              <th>Data</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {dizimos.map(d => (
-              <tr key={d.id}>
-                <td>{d.nome_membro}</td>
-                <td>{formatarValor(d.valor)}</td>
-                <td>{formatarDataBR(d.data)}</td>
-                <td>
-                  <div className="actions">
-                    <button className="btn-editar">Editar</button>
-                    <button onClick={() => excluirDizimo(d.id)} className="btn-excluir">
-                      Excluir
-                    </button>
-                  </div>
-                </td>
+      {dizimos.length === 0 ? (
+        <div className="sem-resultados">
+          <p>Nenhum dízimo registrado</p>
+        </div>
+      ) : (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome do membro</th>
+                <th>Valor</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ações</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {dizimos.map(d => (
+                <tr key={d.id}>
+                  <td>{d.nome_membro}</td>
+                  <td className="valor">{formatarValor(d.valor)}</td>
+                  <td>{formatarDataBR(d.data)}</td>
+                  <td>
+                    <span className={`status-badge ${d.status === 'pago' ? 'pago' : 'pendente'}`}>
+                      {d.status === 'pago' ? '✓ Pago' : '⏱ Pendente'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="actions">
+                      <button className="btn-editar">Editar</button>
+                      <button onClick={() => excluirDizimo(d.id)} className="btn-excluir">
+                        Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {modalAberto && (
         <div className="modal-overlay" onClick={() => setModalAberto(false)}>
@@ -123,7 +176,7 @@ function Dizimos() {
 
             <div className="form-grid">
               <div className="form-group">
-                <label>Nome do membro</label>
+                <label>Nome do membro *</label>
                 <input
                   name="nome_membro"
                   value={form.nome_membro}
@@ -133,10 +186,11 @@ function Dizimos() {
               </div>
 
               <div className="form-group">
-                <label>Valor</label>
+                <label>Valor *</label>
                 <input
                   name="valor"
                   type="number"
+                  step="0.01"
                   value={form.valor}
                   onChange={handleChange}
                   placeholder="R$ 0,00"
@@ -144,7 +198,7 @@ function Dizimos() {
               </div>
 
               <div className="form-group">
-                <label>Data</label>
+                <label>Data *</label>
                 <input
                   type="date"
                   name="data"
@@ -168,11 +222,11 @@ function Dizimos() {
             </div>
 
             <div className="modal-actions">
-              <button className="btn-cancelar" onClick={() => setModalAberto(false)}>
+              <button className="btn-cancelar" onClick={() => setModalAberto(false)} disabled={salvando}>
                 Cancelar
               </button>
-              <button className="btn-salvar" onClick={cadastrarDizimos}>
-                Salvar
+              <button className="btn-salvar" onClick={cadastrarDizimos} disabled={salvando}>
+                {salvando ? 'Salvando...' : 'Salvar'}
               </button>
             </div>
           </div>
@@ -182,4 +236,4 @@ function Dizimos() {
   )
 }
 
-export default Dizimos;
+export default Dizimos
