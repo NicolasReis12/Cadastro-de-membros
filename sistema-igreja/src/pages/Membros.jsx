@@ -16,8 +16,8 @@ function Membros() {
   
   // Busca e filtro
   const [busca, setBusca] = useState('')
-  const [filtroFalecido, setFiltroFalecido] = useState('')
-  const [filtroCidade, setFiltroCidade] = useState('')
+  const [filtroFuncao, setFiltroFuncao] = useState('')
+  const [filtroStatusMembro, setFiltroStatusMembro] = useState('')
 
   // Validação
   const [erros, setErros] = useState({})
@@ -35,7 +35,9 @@ function Membros() {
     parentes_na_igreja: '', nome_parentes_igreja: '',
     data_conversao: '', data_batismo: '', ministro_oficiante: '',
     batizado_espirito_santo: '', data_batismo_espirito: '',
-    observacoes: ''
+    observacoes: '',
+    funcao: 'Membro',
+    status_membro: 'Ativo'
   }
 
   const [form, setForm] = useState(initialForm)
@@ -47,7 +49,7 @@ function Membros() {
   // Filtro automático quando mudanças ocorrem
   useEffect(() => {
     filtrarMembros()
-  }, [membros, busca, filtroFalecido, filtroCidade])
+  }, [membros, busca, filtroFuncao, filtroStatusMembro])
 
   const validarCampo = (name, value) => {
     setErros(prev => {
@@ -118,14 +120,14 @@ function Membros() {
       })
     }
 
-    // Filtro por falecido
-    if (filtroFalecido) {
-      resultado = resultado.filter(m => m.falecido === filtroFalecido)
+    // Filtro por função
+    if (filtroFuncao) {
+      resultado = resultado.filter(m => (m.funcao || 'Membro') === filtroFuncao)
     }
 
-    // Filtro por cidade
-    if (filtroCidade) {
-      resultado = resultado.filter(m => m.cidade === filtroCidade)
+    // Filtro por status do membro
+    if (filtroStatusMembro) {
+      resultado = resultado.filter(m => (m.status_membro || 'Ativo') === filtroStatusMembro)
     }
 
     setMembrosFiltrados(resultado)
@@ -330,8 +332,21 @@ function Membros() {
     }
   }
 
-  // Obter cidades únicas para filtro
-  const cidades = [...new Set(membros.filter(m => m.cidade).map(m => m.cidade))].sort()
+  function funcaoCssClass(funcao) {
+    const map = {
+      'Pastor': 'pastor', 'Presbítero': 'presbitero',
+      'Diácono': 'diacono', 'Líder de Ministério': 'lider',
+      'Visitante': 'visitante'
+    }
+    return map[funcao] || 'membro'
+  }
+
+  function statusMembroCssClass(status) {
+    const map = {
+      'Inativo': 'status-inativo', 'Transferido': 'status-transferido', 'Falecido': 'status-falecido'
+    }
+    return map[status] || 'status-ativo'
+  }
 
   if (carregando && membros.length === 0) {
     return (
@@ -366,19 +381,24 @@ function Membros() {
         </div>
 
         <div className="filtro-item">
-          <select value={filtroFalecido} onChange={(e) => setFiltroFalecido(e.target.value)} className="select-filtro">
-            <option value="">Todos (Falecido)</option>
-            <option value="Sim">Falecidos</option>
-            <option value="Não">Ativos</option>
+          <select value={filtroFuncao} onChange={(e) => setFiltroFuncao(e.target.value)} className="select-filtro">
+            <option value="">Todas as funções</option>
+            <option value="Membro">Membro</option>
+            <option value="Diácono">Diácono</option>
+            <option value="Presbítero">Presbítero</option>
+            <option value="Pastor">Pastor</option>
+            <option value="Líder de Ministério">Líder de Ministério</option>
+            <option value="Visitante">Visitante</option>
           </select>
         </div>
 
         <div className="filtro-item">
-          <select value={filtroCidade} onChange={(e) => setFiltroCidade(e.target.value)} className="select-filtro">
-            <option value="">Todas as cidades</option>
-            {cidades.map(cidade => (
-              <option key={cidade} value={cidade}>{cidade}</option>
-            ))}
+          <select value={filtroStatusMembro} onChange={(e) => setFiltroStatusMembro(e.target.value)} className="select-filtro">
+            <option value="">Todos os status</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+            <option value="Transferido">Transferido</option>
+            <option value="Falecido">Falecido</option>
           </select>
         </div>
 
@@ -403,6 +423,7 @@ function Membros() {
                 <th>Data de nascimento</th>
                 <th>CPF</th>
                 <th>Cidade</th>
+                <th>Função</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
@@ -418,8 +439,13 @@ function Membros() {
                   <td>{m.cpf}</td>
                   <td>{m.cidade}</td>
                   <td>
-                    <span className={`status ${m.falecido === 'Sim' ? 'falecido' : 'ativo'}`}>
-                      {m.falecido === 'Sim' ? '✕ Falecido' : '✓ Ativo'}
+                    <span className={`badge-funcao ${funcaoCssClass(m.funcao)}`}>
+                      {m.funcao || 'Membro'}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`badge-status ${statusMembroCssClass(m.status_membro)}`}>
+                      {m.status_membro || 'Ativo'}
                     </span>
                   </td>
 
@@ -737,6 +763,28 @@ function Membros() {
                   rows="4"
                   placeholder="Observações e anotações gerais"
                 />
+              </div>
+
+              <div className="form-group">
+                <label>Função/Cargo na Igreja</label>
+                <select name="funcao" value={form.funcao} onChange={handleChange}>
+                  <option value="Membro">Membro</option>
+                  <option value="Diácono">Diácono</option>
+                  <option value="Presbítero">Presbítero</option>
+                  <option value="Pastor">Pastor</option>
+                  <option value="Líder de Ministério">Líder de Ministério</option>
+                  <option value="Visitante">Visitante</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Status do Membro <span className="required-star">*</span></label>
+                <select name="status_membro" value={form.status_membro} onChange={handleChange}>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Inativo">Inativo</option>
+                  <option value="Transferido">Transferido</option>
+                  <option value="Falecido">Falecido</option>
+                </select>
               </div>
             </div>
 

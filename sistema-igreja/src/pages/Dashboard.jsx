@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { getMembros } from '../services/membrosService'
 import { getDizimos } from '../services/dizimosService'
+import { ToastContext } from '../App'
 import './Dashboard.css'
 
 function Dashboard() {
+  const { showToast } = useContext(ToastContext)
   const [stats, setStats] = useState({
     totalMembros: 0,
     membrosAtivos: 0,
@@ -66,8 +68,8 @@ function Dashboard() {
           proximosAniversariantes
         })
       }
-    } catch (error) {
-      console.error('Erro ao carregar estatísticas:', error)
+    } catch {
+      showToast('Erro ao carregar estatísticas', 'error')
     } finally {
       setLoading(false)
     }

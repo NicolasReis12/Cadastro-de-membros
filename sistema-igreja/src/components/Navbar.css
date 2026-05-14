@@ -6,11 +6,11 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 1.5rem;
-  background: #111827;
-  height: 60px;
+  background: #1e1b4b;
+  height: 62px;
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
 .logo {
@@ -19,54 +19,81 @@
   gap: 10px;
 }
 
+/* Ícone quadrangular (2×2 grid de cores IEQ) */
 .logo-icon {
   width: 32px;
   height: 32px;
-  background: #3b82f6;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
 }
 
-.logo-icon svg {
-  width: 18px;
-  height: 18px;
+.logo-icon-q {
+  border-radius: 2px;
 }
+
+.q-red    { background: #ef4444; }
+.q-yellow { background: #fbbf24; }
+.q-blue   { background: #60a5fa; }
+.q-purple { background: #a78bfa; }
 
 .logo-title {
   color: #ffffff;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .logo-subtitle {
-  color: #6b7280;
+  color: #a5b4fc;
   font-size: 11px;
   margin-top: 1px;
 }
 
 .menu {
   display: flex;
-  gap: 4px;
+  gap: 2px;
 }
 
 .link {
-  color: #9ca3af;
+  color: #c4b5fd;
   font-size: 13px;
   font-weight: 500;
   text-decoration: none;
-  padding: 6px 14px;
+  padding: 6px 13px;
   border-radius: 6px;
   transition: background 0.15s, color 0.15s;
 }
 
 .link:hover {
   color: #ffffff;
-  background: #1f2937;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .link.active {
   color: #ffffff;
-  background: #1d4ed8;
+  background: #7c3aed;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    height: auto;
+    padding: 12px 1rem;
+    gap: 10px;
+  }
+
+  .menu {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .link {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
 }

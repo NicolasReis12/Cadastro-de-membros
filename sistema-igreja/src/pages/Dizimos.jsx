@@ -208,7 +208,6 @@ function Dizimos() {
                   <td>{formatarDataBR(d.data)}</td>
                   <td>
                     <div className="actions">
-                      <button className="btn-editar">Editar</button>
                       <button onClick={() => excluirDizimo(d.id)} className="btn-excluir">
                         Excluir
                       </button>

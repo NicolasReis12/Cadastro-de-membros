@@ -1,0 +1,225 @@
+.page-relatorios {
+  padding: 1.5rem;
+  background: #f9fafb;
+  min-height: calc(100vh - 60px);
+}
+
+.relatorios-header {
+  margin-bottom: 1.5rem;
+}
+
+.relatorios-header h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.relatorios-header p {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* PERÍODO */
+.periodo-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.periodo-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.periodo-selects {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.select-periodo {
+  padding: 8px 32px 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 7l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-color: #fff;
+  transition: border 0.15s;
+}
+
+.select-periodo:focus {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(29,78,216,0.12);
+}
+
+.periodo-selecionado {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.periodo-selecionado strong {
+  color: #1d4ed8;
+}
+
+/* GRID DE RELATÓRIOS */
+.relatorios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.relatorio-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.relatorio-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.relatorio-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.relatorio-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.relatorio-icon-pdf {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.relatorio-icon-excel {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.relatorio-info h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.relatorio-info p {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.relatorio-info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.relatorio-info ul li {
+  font-size: 12px;
+  color: #9ca3af;
+  padding: 2px 0;
+}
+
+.relatorio-info ul li::before {
+  content: '• ';
+  color: #d1d5db;
+}
+
+/* BOTÕES DE EXPORTAÇÃO */
+.btn-exportar {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  margin-top: auto;
+}
+
+.btn-exportar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-pdf {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.btn-pdf:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.btn-excel {
+  background: #059669;
+  color: #ffffff;
+}
+
+.btn-excel:hover:not(:disabled) {
+  background: #047857;
+}
+
+/* NOTA */
+.relatorios-nota {
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #78350f;
+  line-height: 1.5;
+}
+
+.relatorios-nota code {
+  background: #fef3c7;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .relatorios-grid { grid-template-columns: 1fr; }
+  .periodo-selects { flex-direction: column; }
+}

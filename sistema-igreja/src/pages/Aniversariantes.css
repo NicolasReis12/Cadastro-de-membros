@@ -1,79 +1,261 @@
 .page-aniversariantes {
-    padding: 24px;
-  }
-  
-  .page-aniversariantes h2 {
-    margin-bottom: 20px;
-  }
-  
-  .aniversariantes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
-  }
-  
-  .card-aniversariante {
-    background: #fff;
-    border-radius: 14px;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: relative;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: 0.2s;
-  }
-  
-  .card-aniversariante:hover {
-    transform: translateY(-4px);
-  }
-  
-  .avatar {
-    width: 48px;
-    height: 48px;
-    background: #2563eb;
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-  }
-  
-  .info h3 {
-    margin: 0;
-    font-size: 16px;
-  }
-  
-  .info p {
-    margin: 2px 0;
-    font-size: 13px;
-    color: #666;
-  }
-  
-  .info span {
-    font-size: 13px;
-    color: #16a34a;
-    font-weight: 500;
-  }
-  
-  .badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #22c55e;
-    color: white;
-    font-size: 11px;
-    padding: 4px 8px;
-    border-radius: 8px;
-  }
-  
-  .card-aniversariante.hoje {
-    border: 2px solid #22c55e;
-    background: #f0fdf4;
-  }
-  
-  .sem-dados {
-    color: #888;
-    font-size: 14px;
-  }
+  padding: 1.5rem;
+  background: #f5f3ff;
+  min-height: calc(100vh - 60px);
+}
+
+/* CABEÇALHO */
+.aniv-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.aniv-titulo {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e1b4b;
+  margin: 0;
+}
+
+.aniv-subtitulo {
+  font-size: 14px;
+  color: #7c3aed;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.aniv-badge-total {
+  background: #6d28d9;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+}
+
+/* SEÇÃO HOJE */
+.secao-hoje {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1.5px solid #fcd34d;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.secao-hoje-titulo {
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.secao-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6d28d9;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.75rem;
+  padding-left: 2px;
+}
+
+/* LISTA */
+.aniversariantes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* CARD */
+.card-aniversariante {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #e9d5ff;
+  border-left: 4px solid #7c3aed;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.card-aniversariante:hover {
+  box-shadow: 0 4px 18px rgba(109, 40, 217, 0.1);
+  transform: translateX(3px);
+}
+
+.card-aniversariante.hoje {
+  border-left-color: #f59e0b;
+  border-color: #fcd34d;
+  background: #fffdf0;
+}
+
+.card-aniversariante.hoje:hover {
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.15);
+}
+
+/* AVATAR */
+.aniv-avatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+.card-aniversariante.hoje .aniv-avatar {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+/* INFO */
+.aniv-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.aniv-nome {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e1b4b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 5px;
+}
+
+.aniv-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.aniv-data,
+.aniv-telefone {
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.aniv-data svg,
+.aniv-telefone svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.aniv-anos {
+  font-size: 12px;
+  color: #6d28d9;
+  font-weight: 600;
+}
+
+.card-aniversariante.hoje .aniv-anos {
+  color: #d97706;
+}
+
+/* BADGES */
+.aniv-direita {
+  flex-shrink: 0;
+}
+
+.badge-hoje {
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.badge-dias {
+  background: #ede9fe;
+  color: #5b21b6;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* VAZIO */
+.aniv-vazio {
+  text-align: center;
+  padding: 60px 20px;
+  color: #a78bfa;
+}
+
+.aniv-vazio-icon {
+  margin: 0 auto 14px;
+  width: 64px;
+  height: 64px;
+  background: #ede9fe;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c3aed;
+}
+
+.aniv-vazio p {
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* LOADING */
+.aniv-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  color: #7c3aed;
+}
+
+.aniv-loading p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.aniv-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #ede9fe;
+  border-top-color: #7c3aed;
+  border-radius: 50%;
+  animation: aniv-spin 0.8s linear infinite;
+}
+
+@keyframes aniv-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* RESPONSIVO */
+@media (max-width: 640px) {
+  .aniv-meta { gap: 8px; }
+  .aniv-telefone { display: none; }
+  .aniv-nome { font-size: 14px; }
+  .card-aniversariante { padding: 12px 12px; gap: 10px; }
+  .aniv-avatar { width: 40px; height: 40px; font-size: 16px; }
+}

@@ -404,6 +404,36 @@ select {
   color: #991b1b;
 }
 
+/* BADGES DE FUNÇÃO */
+.badge-funcao {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-funcao.pastor      { background: #f3e8ff; color: #7c3aed; }
+.badge-funcao.presbitero  { background: #e0e7ff; color: #4338ca; }
+.badge-funcao.diacono     { background: #dbeafe; color: #1d4ed8; }
+.badge-funcao.lider       { background: #ccfbf1; color: #0f766e; }
+.badge-funcao.membro      { background: #f3f4f6; color: #374151; }
+.badge-funcao.visitante   { background: #fef3c7; color: #b45309; }
+
+/* BADGES DE STATUS DO MEMBRO */
+.badge-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-status.status-ativo       { background: #d1fae5; color: #065f46; }
+.badge-status.status-inativo     { background: #f3f4f6; color: #374151; }
+.badge-status.status-transferido { background: #dbeafe; color: #1d4ed8; }
+.badge-status.status-falecido    { background: #fee2e2; color: #991b1b; }
+
 /* RESPONSIVO */
 @media (max-width: 768px) {
   .filtros {
