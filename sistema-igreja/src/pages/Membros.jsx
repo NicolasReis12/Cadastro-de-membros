@@ -1,7 +1,7 @@
 import { createMembro, getMembros, deleteMembro, updateMembro } from '../services/membrosService'
 import './Membros.css'
 import { useState, useEffect, useContext } from 'react'
-import { validateForm } from '../utils/validation'
+import { validateForm, validateEmail, validateCPF, validatePhone } from '../utils/validation'
 import { ToastContext } from '../App'
 
 function Membros() {
@@ -21,6 +21,7 @@ function Membros() {
 
   // Validação
   const [erros, setErros] = useState({})
+  const requiredFields = ['nome', 'email', 'telefone', 'cpf', 'data_nascimento', 'cidade']
 
   const initialForm = {
     nome: '', email: '', telefone: '', cpf: '',
@@ -39,6 +40,34 @@ function Membros() {
   useEffect(() => {
     filtrarMembros()
   }, [membros, busca, filtroFalecido, filtroCidade])
+
+  const validarCampo = (name, value) => {
+    setErros(prev => {
+      const next = { ...prev }
+      const valor = value?.toString().trim() ?? ''
+
+      if (requiredFields.includes(name) && !valor) {
+        next[name] = 'Campo obrigatório'
+      } else if (name === 'email' && valor && !validateEmail(valor)) {
+        next[name] = 'Email inválido'
+      } else if (name === 'cpf' && valor && !validateCPF(valor)) {
+        next[name] = 'CPF inválido (11 dígitos)'
+      } else if (name === 'telefone' && valor && !validatePhone(valor)) {
+        next[name] = 'Telefone inválido (10 ou 11 dígitos)'
+      } else if (name === 'data_nascimento' && valor) {
+        const dataNasc = new Date(valor)
+        if (dataNasc > new Date()) {
+          next[name] = 'Data não pode ser no futuro'
+        } else {
+          delete next[name]
+        }
+      } else {
+        delete next[name]
+      }
+
+      return next
+    })
+  }
 
   async function carregarMembros() {
     setCarregando(true)
@@ -62,12 +91,18 @@ function Membros() {
     // Filtro por busca (nome, email, cpf, telefone)
     if (busca.trim()) {
       const buscaLower = busca.toLowerCase()
-      resultado = resultado.filter(m => 
-        (m.nome?.toLowerCase().includes(buscaLower)) ||
-        (m.email?.toLowerCase().includes(buscaLower)) ||
-        (m.cpf?.includes(busca)) ||
-        (m.telefone?.includes(busca))
-      )
+      const buscaDigits = busca.replace(/\D/g, '')
+      resultado = resultado.filter(m => {
+        const cpf = (m.cpf || '').replace(/\D/g, '')
+        const telefone = (m.telefone || '').replace(/\D/g, '')
+
+        return (
+          m.nome?.toLowerCase().includes(buscaLower) ||
+          m.email?.toLowerCase().includes(buscaLower) ||
+          (buscaDigits && cpf.includes(buscaDigits)) ||
+          (buscaDigits && telefone.includes(buscaDigits))
+        )
+      })
     }
 
     // Filtro por falecido
@@ -87,11 +122,7 @@ function Membros() {
     const { name, value } = e.target
     const novoForm = { ...form, [name]: value }
     setForm(novoForm)
-
-    // Limpar erro do campo
-    if (erros[name]) {
-      setErros({ ...erros, [name]: '' })
-    }
+    validarCampo(name, value)
 
     // CEP automático
     if (name === 'cep') {
@@ -322,7 +353,9 @@ function Membros() {
 
             <div className="form-grid">
               <div className="form-group">
-                <label>Nome *</label>
+                <label>
+                  Nome <span className="required-star">*</span>
+                </label>
                 <input
                   name="nome"
                   value={form.nome}
@@ -333,7 +366,9 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>Email *</label>
+                <label>
+                  Email <span className="required-star">*</span>
+                </label>
                 <input
                   name="email"
                   type="email"
@@ -345,7 +380,9 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>Telefone *</label>
+                <label>
+                  Telefone <span className="required-star">*</span>
+                </label>
                 <input
                   name="telefone"
                   value={form.telefone}
@@ -357,7 +394,9 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>CPF *</label>
+                <label>
+                  CPF <span className="required-star">*</span>
+                </label>
                 <input
                   name="cpf"
                   value={form.cpf}
@@ -369,7 +408,9 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>Data de nascimento *</label>
+                <label>
+                  Data de nascimento <span className="required-star">*</span>
+                </label>
                 <input
                   type="date"
                   name="data_nascimento"
@@ -411,7 +452,9 @@ function Membros() {
               </div>
 
               <div className="form-group">
-                <label>Cidade *</label>
+                <label>
+                  Cidade <span className="required-star">*</span>
+                </label>
                 <input
                   name="cidade"
                   value={form.cidade}
@@ -446,7 +489,7 @@ function Membros() {
                 Cancelar
               </button>
 
-              <button className="btn-salvar" onClick={salvarMembro} disabled={salvando}>
+              <button className="btn-salvar" onClick={salvarMembro} disabled={salvando || Object.keys(erros).length > 0}>
                 {salvando ? 'Salvando...' : editando ? 'Atualizar' : 'Salvar'}
               </button>
             </div>

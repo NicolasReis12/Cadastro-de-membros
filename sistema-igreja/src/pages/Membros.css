@@ -166,11 +166,17 @@ tbody tr:hover {
   font-size: 13px;
   color: #111827;
   outline: none;
-  transition: border 0.15s;
+  transition: border 0.15s, box-shadow 0.15s;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+}
+
+.required-star {
+  color: #ef4444;
 }
 
 .modal-actions {

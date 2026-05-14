@@ -1,22 +1,36 @@
+const cleanNumber = (value) => value?.toString().replace(/\D/g, '') || ''
+
 export const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return re.test(email)
 }
 
 export const validateCPF = (cpf) => {
-  const cleanCPF = cpf.replace(/\D/g, '')
-  
+  const cleanCPF = cleanNumber(cpf)
+
   if (cleanCPF.length !== 11) return false
-  
-  // Rejeita sequências idênticas
   if (/^(\d)\1{10}$/.test(cleanCPF)) return false
-  
-  // Valida dígitos verificadores (simplificado)
-  return true
+
+  const calcDigit = (length) => {
+    const numbers = cleanCPF
+      .slice(0, length)
+      .split('')
+      .map(Number)
+
+    const weight = length + 1
+    const sum = numbers.reduce((acc, num, index) => acc + num * (weight - index), 0)
+    const remainder = (sum * 10) % 11
+    return remainder === 10 ? 0 : remainder
+  }
+
+  const digit1 = calcDigit(9)
+  const digit2 = calcDigit(10)
+
+  return digit1 === Number(cleanCPF[9]) && digit2 === Number(cleanCPF[10])
 }
 
 export const validatePhone = (phone) => {
-  const cleanPhone = phone.replace(/\D/g, '')
+  const cleanPhone = cleanNumber(phone)
   return cleanPhone.length === 10 || cleanPhone.length === 11
 }
 
@@ -34,7 +48,7 @@ export const validateForm = (form, requiredFields) => {
   }
 
   if (form.cpf && form.cpf.trim() && !validateCPF(form.cpf)) {
-    errors.cpf = 'CPF inválido (deve ter 11 dígitos)'
+    errors.cpf = 'CPF inválido (11 dígitos)'
   }
 
   if (form.telefone && form.telefone.trim() && !validatePhone(form.telefone)) {
