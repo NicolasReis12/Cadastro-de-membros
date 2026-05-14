@@ -26,7 +26,16 @@ function Membros() {
     nome: '', email: '', telefone: '', cpf: '',
     data_nascimento: '', cep: '', logradouro: '',
     numero: '', complemento: '', bairro: '', cidade: '', uf: '',
-    falecido: '', data_da_morte: ''
+    falecido: '', data_da_morte: '',
+    // Novos campos da ficha
+    estado_civil: '', nome_esposo: '',
+    nome_pai: '', nome_mae: '', grau_instrucao: '', profissao: '',
+    documento_identidade: '', religiao_anterior: '',
+    recebeu_cura_libertacao: '', descricao_cura_libertacao: '',
+    parentes_na_igreja: '', nome_parentes_igreja: '',
+    data_conversao: '', data_batismo: '', ministro_oficiante: '',
+    batizado_espirito_santo: '', data_batismo_espirito: '',
+    observacoes: ''
   }
 
   const [form, setForm] = useState(initialForm)
@@ -127,7 +136,8 @@ function Membros() {
     let novoValor = value
 
     // Aplicar máscara DD/MM/YYYY nos campos de data
-    if (name === 'data_nascimento' || name === 'data_da_morte') {
+    const camposData = ['data_nascimento', 'data_da_morte', 'data_conversao', 'data_batismo', 'data_batismo_espirito']
+    if (camposData.includes(name)) {
       const apenasNumeros = value.replace(/\D/g, '')
       let dataFormatada = apenasNumeros
       
@@ -161,7 +171,8 @@ function Membros() {
     setForm(novoForm)
     
     // Validar campo se não for data (datas são validadas acima)
-    if (name !== 'data_nascimento' && name !== 'data_da_morte') {
+    const camposData2 = ['data_nascimento', 'data_da_morte', 'data_conversao', 'data_batismo', 'data_batismo_espirito']
+    if (!camposData2.includes(name)) {
       validarCampo(name, novoValor)
     }
 
@@ -206,14 +217,14 @@ function Membros() {
   function abrirEditar(membro) {
     // Converter datas de YYYY-MM-DD para DD/MM/YYYY
     const membroComDatasFormatadas = { ...membro }
-    if (membro.data_nascimento && membro.data_nascimento.includes('-')) {
-      const [ano, mes, dia] = membro.data_nascimento.split('-')
-      membroComDatasFormatadas.data_nascimento = `${dia}/${mes}/${ano}`
-    }
-    if (membro.data_da_morte && membro.data_da_morte.includes('-')) {
-      const [ano, mes, dia] = membro.data_da_morte.split('-')
-      membroComDatasFormatadas.data_da_morte = `${dia}/${mes}/${ano}`
-    }
+    const camposData = ['data_nascimento', 'data_da_morte', 'data_conversao', 'data_batismo', 'data_batismo_espirito']
+    
+    camposData.forEach(campo => {
+      if (membro[campo] && membro[campo].includes('-')) {
+        const [ano, mes, dia] = membro[campo].split('-')
+        membroComDatasFormatadas[campo] = `${dia}/${mes}/${ano}`
+      }
+    })
     
     setForm(membroComDatasFormatadas)
     setErros({})
@@ -225,12 +236,12 @@ function Membros() {
     const novosErros = {}
 
     // Validar datas
-    if (form.data_nascimento && !validateDataBR(form.data_nascimento)) {
-      novosErros.data_nascimento = 'Data de nascimento inválida'
-    }
-    if (form.data_da_morte && !validateDataBR(form.data_da_morte)) {
-      novosErros.data_da_morte = 'Data de falecimento inválida'
-    }
+    const camposData = ['data_nascimento', 'data_da_morte', 'data_conversao', 'data_batismo', 'data_batismo_espirito']
+    camposData.forEach(campo => {
+      if (form[campo] && !validateDataBR(form[campo])) {
+        novosErros[campo] = 'Data inválida (DD/MM/YYYY)'
+      }
+    })
 
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros)
@@ -242,12 +253,11 @@ function Membros() {
     try {
       // Converter datas de DD/MM/YYYY para YYYY-MM-DD
       const formComDatasConvertidas = { ...form }
-      if (form.data_nascimento && form.data_nascimento.includes('/')) {
-        formComDatasConvertidas.data_nascimento = convertDDMMYYYYtoYYYYMMDD(form.data_nascimento)
-      }
-      if (form.data_da_morte && form.data_da_morte.includes('/')) {
-        formComDatasConvertidas.data_da_morte = convertDDMMYYYYtoYYYYMMDD(form.data_da_morte)
-      }
+      camposData.forEach(campo => {
+        if (form[campo] && form[campo].includes('/')) {
+          formComDatasConvertidas[campo] = convertDDMMYYYYtoYYYYMMDD(form[campo])
+        }
+      })
 
       // Limpar campos opcionais vazios para null
       const formLimpo = Object.keys(formComDatasConvertidas).reduce((acc, key) => {
@@ -569,6 +579,165 @@ function Membros() {
                   {erros.data_da_morte && <span className="error-text">{erros.data_da_morte}</span>}
                 </div>
               )}
+
+              {/* Novos campos da ficha */}
+              <div className="form-group">
+                <label>Estado Civil</label>
+                <select name="estado_civil" value={form.estado_civil} onChange={handleChange}>
+                  <option value="">Selecione</option>
+                  <option value="Solteiro">Solteiro</option>
+                  <option value="Casado">Casado</option>
+                  <option value="Viúvo">Viúvo</option>
+                  <option value="Divorciado">Divorciado</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Nome do Esposo/a</label>
+                <input name="nome_esposo" value={form.nome_esposo} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Nome do Pai</label>
+                <input name="nome_pai" value={form.nome_pai} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Nome da Mãe</label>
+                <input name="nome_mae" value={form.nome_mae} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Grau de Instrução</label>
+                <select name="grau_instrucao" value={form.grau_instrucao} onChange={handleChange}>
+                  <option value="">Selecione</option>
+                  <option value="Fundamental">Fundamental</option>
+                  <option value="Médio">Médio</option>
+                  <option value="Superior">Superior</option>
+                  <option value="Pós-graduação">Pós-graduação</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Profissão</label>
+                <input name="profissao" value={form.profissao} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Documento de Identidade</label>
+                <input name="documento_identidade" value={form.documento_identidade} onChange={handleChange} />
+              </div>
+
+              <div className="form-group full">
+                <label>Religião Anterior</label>
+                <input name="religiao_anterior" value={form.religiao_anterior} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Recebeu Cura/Libertação</label>
+                <select name="recebeu_cura_libertacao" value={form.recebeu_cura_libertacao} onChange={handleChange}>
+                  <option value="">Selecione</option>
+                  <option value="Sim">Sim</option>
+                  <option value="Não">Não</option>
+                </select>
+              </div>
+
+              {form.recebeu_cura_libertacao === 'Sim' && (
+                <div className="form-group full">
+                  <label>Descrição da Cura/Libertação</label>
+                  <textarea
+                    name="descricao_cura_libertacao"
+                    value={form.descricao_cura_libertacao}
+                    onChange={handleChange}
+                    rows="3"
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label>Tem Parentes na Igreja</label>
+                <select name="parentes_na_igreja" value={form.parentes_na_igreja} onChange={handleChange}>
+                  <option value="">Selecione</option>
+                  <option value="Sim">Sim</option>
+                  <option value="Não">Não</option>
+                </select>
+              </div>
+
+              {form.parentes_na_igreja === 'Sim' && (
+                <div className="form-group full">
+                  <label>Nome dos Parentes</label>
+                  <input name="nome_parentes_igreja" value={form.nome_parentes_igreja} onChange={handleChange} />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label>Data da Conversão</label>
+                <input
+                  type="text"
+                  name="data_conversao"
+                  value={form.data_conversao}
+                  onChange={handleChange}
+                  placeholder="DD/MM/YYYY"
+                  maxLength="10"
+                  className={erros.data_conversao ? 'input-error' : ''}
+                />
+                {erros.data_conversao && <span className="error-text">{erros.data_conversao}</span>}
+              </div>
+
+              <div className="form-group">
+                <label>Data do Batismo</label>
+                <input
+                  type="text"
+                  name="data_batismo"
+                  value={form.data_batismo}
+                  onChange={handleChange}
+                  placeholder="DD/MM/YYYY"
+                  maxLength="10"
+                  className={erros.data_batismo ? 'input-error' : ''}
+                />
+                {erros.data_batismo && <span className="error-text">{erros.data_batismo}</span>}
+              </div>
+
+              <div className="form-group full">
+                <label>Ministro Oficiante</label>
+                <input name="ministro_oficiante" value={form.ministro_oficiante} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Batizado com o Espírito Santo</label>
+                <select name="batizado_espirito_santo" value={form.batizado_espirito_santo} onChange={handleChange}>
+                  <option value="">Selecione</option>
+                  <option value="Sim">Sim</option>
+                  <option value="Não">Não</option>
+                </select>
+              </div>
+
+              {form.batizado_espirito_santo === 'Sim' && (
+                <div className="form-group">
+                  <label>Data do Batismo no Espírito Santo</label>
+                  <input
+                    type="text"
+                    name="data_batismo_espirito"
+                    value={form.data_batismo_espirito}
+                    onChange={handleChange}
+                    placeholder="DD/MM/YYYY"
+                    maxLength="10"
+                    className={erros.data_batismo_espirito ? 'input-error' : ''}
+                  />
+                  {erros.data_batismo_espirito && <span className="error-text">{erros.data_batismo_espirito}</span>}
+                </div>
+              )}
+
+              <div className="form-group full">
+                <label>Observações</label>
+                <textarea
+                  name="observacoes"
+                  value={form.observacoes}
+                  onChange={handleChange}
+                  rows="4"
+                  placeholder="Observações e anotações gerais"
+                />
+              </div>
             </div>
 
             <div className="modal-actions">
