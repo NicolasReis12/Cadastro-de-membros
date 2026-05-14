@@ -27,6 +27,7 @@ function Dashboard() {
       if (membros) {
         const hoje = new Date()
         const mesAtual = hoje.getMonth() + 1
+        const anoAtual = hoje.getFullYear()
         const diaAtual = hoje.getDate()
 
         const membrosFalecidos = membros.filter(m => m.falecido === 'Sim').length
@@ -36,7 +37,8 @@ function Dashboard() {
         const proximosAniversariantes = membros
           .filter(m => {
             if (!m.data_nascimento || m.falecido === 'Sim') return false
-            const mes = new Date(m.data_nascimento).getMonth() + 1
+            // Extrair mês da data YYYY-MM-DD sem usar new Date
+            const mes = parseInt(m.data_nascimento.split('-')[1], 10)
             return mes === mesAtual
           })
           .slice(0, 5)
@@ -48,8 +50,9 @@ function Dashboard() {
         const dizmosDoMes = dizimos 
           ? dizimos
               .filter(d => {
-                const dataDizimo = new Date(d.data)
-                return dataDizimo.getMonth() + 1 === mesAtual && dataDizimo.getFullYear() === hoje.getFullYear()
+                // Extrair ano e mês da data YYYY-MM-DD sem usar new Date
+                const [ano, mes] = d.data.split('-').map(Number)
+                return mes === mesAtual && ano === anoAtual
               })
               .reduce((sum, d) => sum + (parseFloat(d.valor) || 0), 0)
           : 0
@@ -79,7 +82,19 @@ function Dashboard() {
 
   const formatarData = (data) => {
     if (!data) return ''
-    return new Date(data).toLocaleDateString('pt-BR')
+    
+    // Se já está no formato DD/MM/YYYY, retornar como está
+    if (data.includes('/')) return data
+    
+    try {
+      // Parse data no formato YYYY-MM-DD sem usar new Date para evitar problemas de timezone
+      const [ano, mes, dia] = data.split('-')
+      if (!ano || !mes || !dia) return ''
+      
+      return `${dia}/${mes}/${ano}`
+    } catch {
+      return ''
+    }
   }
 
   if (loading) {
