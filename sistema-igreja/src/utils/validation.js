@@ -83,9 +83,12 @@ export const convertDDMMYYYYtoYYYYMMDD = (dataBR) => {
     return null
   }
   
-  // Validar se a data é válida
-  const data = new Date(anoNum, mesNum - 1, diaNum)
-  if (data.getDate() !== diaNum || data.getMonth() !== mesNum - 1 || data.getFullYear() !== anoNum) {
+  // Validar se é um dia válido para o mês (sem usar Date para evitar problemas de timezone)
+  const diasPorMes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  const ehBissexto = (anoNum % 4 === 0 && anoNum % 100 !== 0) || (anoNum % 400 === 0)
+  if (ehBissexto) diasPorMes[1] = 29
+  
+  if (diaNum > diasPorMes[mesNum - 1]) {
     return null
   }
   
@@ -122,11 +125,13 @@ export const isDataFutura = (dataISO) => {
   
   try {
     const [ano, mes, dia] = dataISO.split('-')
-    const data = new Date(ano, parseInt(mes) - 1, dia)
     const hoje = new Date()
-    hoje.setHours(0, 0, 0, 0)
+    const anoHoje = hoje.getFullYear()
+    const mesHoje = String(hoje.getMonth() + 1).padStart(2, '0')
+    const diaHoje = String(hoje.getDate()).padStart(2, '0')
+    const hojeISO = `${anoHoje}-${mesHoje}-${diaHoje}`
     
-    return data > hoje
+    return dataISO > hojeISO
   } catch {
     return false
   }

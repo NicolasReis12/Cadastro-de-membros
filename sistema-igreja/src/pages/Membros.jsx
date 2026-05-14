@@ -305,7 +305,19 @@ function Membros() {
 
   function formatarDataBR(data) {
     if (!data) return ''
-    return new Date(data).toLocaleDateString('pt-BR')
+    
+    // Se já está no formato DD/MM/YYYY, retornar como está
+    if (data.includes('/')) return data
+    
+    try {
+      // Parse data no formato YYYY-MM-DD sem usar new Date para evitar problemas de timezone
+      const [ano, mes, dia] = data.split('-')
+      if (!ano || !mes || !dia) return ''
+      
+      return `${dia}/${mes}/${ano}`
+    } catch {
+      return ''
+    }
   }
 
   // Obter cidades únicas para filtro
@@ -481,7 +493,7 @@ function Membros() {
                   value={form.data_nascimento}
                   onChange={handleChange}
                   placeholder="DD/MM/YYYY"
-                  maxLength="10"
+                  maxLength="11"
                   className={erros.data_nascimento ? 'input-error' : ''}
                 />
                 {erros.data_nascimento && <span className="error-text">{erros.data_nascimento}</span>}
