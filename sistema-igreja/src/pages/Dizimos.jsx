@@ -2,6 +2,7 @@ import './Dizimos.css'
 import { createDizimos, getDizimos, deleteDizimo } from '../services/dizimosService'
 import { useState, useEffect, useContext } from 'react'
 import { ToastContext } from '../App'
+import { convertDDMMYYYYtoYYYYMMDD, formatarDataBR, validateDataBR, isDataFutura } from '../utils/validation'
 
 function Dizimos() {
   const { showToast } = useContext(ToastContext)
@@ -10,6 +11,7 @@ function Dizimos() {
   const [dizimos, setDizimos] = useState([])
   const [carregando, setCarregando] = useState(false)
   const [salvando, setSalvando] = useState(false)
+  const [erros, setErros] = useState({})
 
   const initialForm = {
     nome_membro: '',
@@ -41,23 +43,84 @@ function Dizimos() {
   }
 
   function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    
+    // Aplicar máscara DD/MM/YYYY no campo data
+    if (name === 'data') {
+      const apenasNumeros = value.replace(/\D/g, '')
+      let dataFormatada = apenasNumeros
+      
+      if (apenasNumeros.length <= 2) {
+        dataFormatada = apenasNumeros
+      } else if (apenasNumeros.length <= 4) {
+        dataFormatada = apenasNumeros.slice(0, 2) + '/' + apenasNumeros.slice(2)
+      } else if (apenasNumeros.length <= 8) {
+        dataFormatada = apenasNumeros.slice(0, 2) + '/' + apenasNumeros.slice(2, 4) + '/' + apenasNumeros.slice(4, 8)
+      }
+      
+      setForm({ ...form, [name]: dataFormatada })
+      
+      // Validar data quando completa
+      if (apenasNumeros.length === 8) {
+        if (!validateDataBR(dataFormatada)) {
+          setErros(prev => ({ ...prev, data: 'Data inválida (DD/MM/YYYY)' }))
+        } else if (isDataFutura(convertDDMMYYYYtoYYYYMMDD(dataFormatada))) {
+          setErros(prev => ({ ...prev, data: 'A data não pode ser no futuro' }))
+        } else {
+          setErros(prev => {
+            const newErros = { ...prev }
+            delete newErros.data
+            return newErros
+          })
+        }
+      }
+    } else {
+      setForm({ ...form, [name]: value })
+    }
   }
 
   function abrirModal() {
     setForm(initialForm)
+    setErros({})
     setModalAberto(true)
   }
 
   async function cadastrarDizimos() {
-    if (!form.nome_membro.trim() || !form.valor || !form.data) {
-      showToast('Por favor, preencha todos os campos obrigatórios', 'error')
+    const novosErros = {}
+    
+    if (!form.nome_membro.trim()) {
+      novosErros.nome_membro = 'Nome do membro é obrigatório'
+    }
+    
+    if (!form.valor || parseFloat(form.valor) <= 0) {
+      novosErros.valor = 'Valor deve ser maior que 0'
+    }
+    
+    if (!form.data.trim()) {
+      novosErros.data = 'Data é obrigatória'
+    } else if (!validateDataBR(form.data)) {
+      novosErros.data = 'Data inválida (use o formato DD/MM/YYYY)'
+    } else if (isDataFutura(convertDDMMYYYYtoYYYYMMDD(form.data))) {
+      novosErros.data = 'A data não pode ser no futuro'
+    }
+    
+    if (Object.keys(novosErros).length > 0) {
+      setErros(novosErros)
+      showToast('Por favor, preencha todos os campos corretamente', 'error')
       return
     }
 
     setSalvando(true)
     try {
-      const { error } = await createDizimos(form)
+      // Converter data de DD/MM/YYYY para YYYY-MM-DD
+      const dataConvertida = convertDDMMYYYYtoYYYYMMDD(form.data)
+      
+      const dadosDizimo = {
+        ...form,
+        data: dataConvertida // Salvar no formato YYYY-MM-DD
+      }
+
+      const { error } = await createDizimos(dadosDizimo)
 
       if (error) {
         showToast(`Erro ao cadastrar: ${error.message}`, 'error')
@@ -67,6 +130,7 @@ function Dizimos() {
       showToast('Dízimo cadastrado com sucesso', 'success')
       await carregarDizimos()
       setForm(initialForm)
+      setErros({})
       setModalAberto(false)
     } catch (err) {
       showToast('Erro ao cadastrar dízimo', 'error')
@@ -91,11 +155,6 @@ function Dizimos() {
     } catch (err) {
       showToast('Erro ao excluir dízimo', 'error')
     }
-  }
-
-  function formatarDataBR(data) {
-    if (!data) return ''
-    return new Date(data).toLocaleDateString('pt-BR')
   }
 
   function formatarValor(valor) {
@@ -182,7 +241,9 @@ function Dizimos() {
                   value={form.nome_membro}
                   onChange={handleChange}
                   placeholder="Nome do membro"
+                  className={erros.nome_membro ? 'input-error' : ''}
                 />
+                {erros.nome_membro && <span className="error-text">{erros.nome_membro}</span>}
               </div>
 
               <div className="form-group">
@@ -194,17 +255,23 @@ function Dizimos() {
                   value={form.valor}
                   onChange={handleChange}
                   placeholder="R$ 0,00"
+                  className={erros.valor ? 'input-error' : ''}
                 />
+                {erros.valor && <span className="error-text">{erros.valor}</span>}
               </div>
 
               <div className="form-group">
                 <label>Data *</label>
                 <input
-                  type="date"
+                  type="text"
                   name="data"
                   value={form.data}
                   onChange={handleChange}
+                  placeholder="DD/MM/YYYY"
+                  maxLength="10"
+                  className={erros.data ? 'input-error' : ''}
                 />
+                {erros.data && <span className="error-text">{erros.data}</span>}
               </div>
 
               <div className="form-group">
@@ -225,7 +292,7 @@ function Dizimos() {
               <button className="btn-cancelar" onClick={() => setModalAberto(false)} disabled={salvando}>
                 Cancelar
               </button>
-              <button className="btn-salvar" onClick={cadastrarDizimos} disabled={salvando}>
+              <button className="btn-salvar" onClick={cadastrarDizimos} disabled={salvando || Object.keys(erros).length > 0}>
                 {salvando ? 'Salvando...' : 'Salvar'}
               </button>
             </div>

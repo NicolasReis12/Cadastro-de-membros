@@ -65,3 +65,69 @@ export const validateForm = (form, requiredFields) => {
 
   return errors
 }
+
+// Conversão de data DD/MM/YYYY para YYYY-MM-DD (para salvar no banco)
+export const convertDDMMYYYYtoYYYYMMDD = (dataBR) => {
+  if (!dataBR || !dataBR.trim()) return null
+  
+  const partes = dataBR.trim().split('/')
+  if (partes.length !== 3) return null
+  
+  const [dia, mes, ano] = partes
+  const diaNum = parseInt(dia, 10)
+  const mesNum = parseInt(mes, 10)
+  const anoNum = parseInt(ano, 10)
+  
+  // Validar dia (1-31), mês (1-12), ano (1900-2100)
+  if (diaNum < 1 || diaNum > 31 || mesNum < 1 || mesNum > 12 || anoNum < 1900 || anoNum > 2100) {
+    return null
+  }
+  
+  // Validar se a data é válida
+  const data = new Date(anoNum, mesNum - 1, diaNum)
+  if (data.getDate() !== diaNum || data.getMonth() !== mesNum - 1 || data.getFullYear() !== anoNum) {
+    return null
+  }
+  
+  // Retornar no formato YYYY-MM-DD
+  return `${anoNum}-${String(mesNum).padStart(2, '0')}-${String(diaNum).padStart(2, '0')}`
+}
+
+// Validar data no formato DD/MM/YYYY
+export const validateDataBR = (dataBR) => {
+  return convertDDMMYYYYtoYYYYMMDD(dataBR) !== null
+}
+
+// Formatar data YYYY-MM-DD para DD/MM/YYYY
+export const formatarDataBR = (dataISO) => {
+  if (!dataISO) return ''
+  
+  // Se já está no formato DD/MM/YYYY, retornar como está
+  if (dataISO.includes('/')) return dataISO
+  
+  try {
+    // Parse data sem fuso horário
+    const [ano, mes, dia] = dataISO.split('-')
+    if (!ano || !mes || !dia) return ''
+    
+    return `${dia}/${mes}/${ano}`
+  } catch {
+    return ''
+  }
+}
+
+// Validar se a data é posterior a outra data
+export const isDataFutura = (dataISO) => {
+  if (!dataISO) return false
+  
+  try {
+    const [ano, mes, dia] = dataISO.split('-')
+    const data = new Date(ano, parseInt(mes) - 1, dia)
+    const hoje = new Date()
+    hoje.setHours(0, 0, 0, 0)
+    
+    return data > hoje
+  } catch {
+    return false
+  }
+}
