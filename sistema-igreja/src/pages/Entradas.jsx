@@ -1,17 +1,9 @@
 import { useState, useEffect, useContext } from 'react'
-import { getEntradas, createEntrada, deleteEntrada, getCampanhas, createCampanha } from '../services/entradasService'
+import { getEntradas, createEntrada, deleteEntrada } from '../services/entradasService'
 import { getMembros } from '../services/membrosService'
 import { ToastContext } from '../App'
 import { convertDDMMYYYYtoYYYYMMDD, validateDataBR, isDataFutura, formatarDataBR } from '../utils/validation'
 import './Entradas.css'
-
-const TIPOS = {
-  dizimo: 'Dízimo',
-  oferta_geral: 'Oferta Geral',
-  campanha: 'Campanha',
-  venda_evento: 'Venda de Evento',
-  doacao: 'Doação'
-}
 
 const FORMAS = {
   dinheiro: 'Dinheiro',
@@ -21,9 +13,6 @@ const FORMAS = {
 }
 
 const initialForm = {
-  tipo: 'dizimo',
-  campanha: '',
-  evento: '',
   membro_id: '',
   membro_nome: '',
   valor: '',
@@ -35,22 +24,14 @@ const initialForm = {
 function Entradas() {
   const { showToast } = useContext(ToastContext)
 
-  const [entradas, setEntradas] = useState([])
-  const [campanhas, setCampanhas] = useState([])
+  const [dizimos, setDizimos] = useState([])
   const [membros, setMembros] = useState([])
   const [carregando, setCarregando] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [modalAberto, setModalAberto] = useState(false)
-  const [modalCampanha, setModalCampanha] = useState(false)
   const [erros, setErros] = useState({})
-  const [tabelaNaoExiste, setTabelaNaoExiste] = useState(false)
   const [form, setForm] = useState(initialForm)
-  const [novaCampanha, setNovaCampanha] = useState({ nome: '', descricao: '', meta: '' })
-
-  // Filtros
-  const [filtroTipo, setFiltroTipo] = useState('')
-  const [filtroDataInicio, setFiltroDataInicio] = useState('')
-  const [filtroDataFim, setFiltroDataFim] = useState('')
+  const [tabelaNaoExiste, setTabelaNaoExiste] = useState(false)
 
   useEffect(() => {
     carregarTudo()
@@ -59,23 +40,18 @@ function Entradas() {
   async function carregarTudo() {
     setCarregando(true)
     try {
-      const [entradasRes, campanhasRes, membrosRes] = await Promise.all([
-        getEntradas(),
-        getCampanhas(),
+      const [dizimosRes, membrosRes] = await Promise.all([
+        getEntradas({ tipo: 'dizimo' }),
         getMembros()
       ])
 
-      if (entradasRes.error) {
-        if (entradasRes.error.code === '42P01') {
-          setTabelaNaoExiste(true)
-        } else {
-          showToast('Erro ao carregar entradas: ' + entradasRes.error.message, 'error')
-        }
+      if (dizimosRes.error) {
+        if (dizimosRes.error.code === '42P01') setTabelaNaoExiste(true)
+        else showToast('Erro ao carregar dízimos: ' + dizimosRes.error.message, 'error')
       } else {
-        setEntradas(entradasRes.data || [])
+        setDizimos(dizimosRes.data || [])
       }
 
-      if (!campanhasRes.error) setCampanhas(campanhasRes.data || [])
       if (!membrosRes.error) setMembros(membrosRes.data || [])
     } catch {
       showToast('Erro ao carregar dados', 'error')
@@ -119,32 +95,27 @@ function Entradas() {
     setModalAberto(true)
   }
 
-  async function salvarEntrada() {
+  async function salvar() {
     const novosErros = {}
-
-    if (!form.valor || parseFloat(form.valor) <= 0) novosErros.valor = 'Valor deve ser maior que 0'
+    if (!form.valor || parseFloat(form.valor) <= 0) novosErros.valor = 'Informe um valor maior que zero'
     if (!form.data.trim()) {
       novosErros.data = 'Data é obrigatória'
     } else if (!validateDataBR(form.data)) {
-      novosErros.data = 'Data inválida (DD/MM/YYYY)'
+      novosErros.data = 'Data inválida (DD/MM/AAAA)'
     } else if (isDataFutura(convertDDMMYYYYtoYYYYMMDD(form.data))) {
       novosErros.data = 'Data não pode ser no futuro'
     }
-    if (form.tipo === 'campanha' && !form.campanha) novosErros.campanha = 'Selecione uma campanha'
-    if (form.tipo === 'venda_evento' && !form.evento.trim()) novosErros.evento = 'Informe o nome do evento'
 
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros)
-      showToast('Corrija os erros antes de salvar', 'error')
+      showToast('Corrija os campos antes de salvar', 'error')
       return
     }
 
     setSalvando(true)
     try {
       const dados = {
-        tipo: form.tipo,
-        campanha: form.tipo === 'campanha' ? form.campanha : null,
-        evento: form.tipo === 'venda_evento' ? form.evento : null,
+        tipo: 'dizimo',
         membro_id: form.membro_id || null,
         nome_membro: form.membro_nome.trim() || null,
         valor: parseFloat(form.valor),
@@ -154,102 +125,62 @@ function Entradas() {
       }
 
       const { error } = await createEntrada(dados)
-      if (error) {
-        showToast('Erro ao registrar entrada: ' + error.message, 'error')
-        return
-      }
+      if (error) { showToast('Erro ao registrar: ' + error.message, 'error'); return }
 
-      showToast('Entrada registrada com sucesso', 'success')
+      showToast('Dízimo registrado com sucesso', 'success')
       await carregarTudo()
       setForm(initialForm)
       setErros({})
       setModalAberto(false)
     } catch {
-      showToast('Erro ao registrar entrada', 'error')
+      showToast('Erro ao registrar dízimo', 'error')
     } finally {
       setSalvando(false)
     }
   }
 
-  async function excluirEntrada(id) {
-    if (!window.confirm('Excluir esta entrada?')) return
+  async function excluir(id) {
+    if (!window.confirm('Excluir este dízimo?')) return
     try {
       const { error } = await deleteEntrada(id)
       if (error) { showToast('Erro ao excluir: ' + error.message, 'error'); return }
-      showToast('Entrada excluída com sucesso', 'success')
-      setEntradas(prev => prev.filter(e => e.id !== id))
+      showToast('Dízimo excluído com sucesso', 'success')
+      setDizimos(prev => prev.filter(d => d.id !== id))
     } catch {
-      showToast('Erro ao excluir entrada', 'error')
+      showToast('Erro ao excluir', 'error')
     }
   }
 
-  async function salvarCampanha() {
-    if (!novaCampanha.nome.trim()) {
-      showToast('Nome da campanha é obrigatório', 'error')
-      return
-    }
-    try {
-      const dados = {
-        nome: novaCampanha.nome.trim(),
-        descricao: novaCampanha.descricao || null,
-        meta: novaCampanha.meta ? parseFloat(novaCampanha.meta) : null,
-        ativa: true
-      }
-      const { data, error } = await createCampanha(dados)
-      if (error) { showToast('Erro ao criar campanha: ' + error.message, 'error'); return }
-      showToast('Campanha criada com sucesso', 'success')
-      setCampanhas(prev => [...prev, data])
-      setForm(f => ({ ...f, campanha: data.nome }))
-      setNovaCampanha({ nome: '', descricao: '', meta: '' })
-      setModalCampanha(false)
-    } catch {
-      showToast('Erro ao criar campanha', 'error')
-    }
+  function formatarValor(v) {
+    return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
   }
 
-  const entradasFiltradas = entradas.filter(e => {
-    if (filtroTipo && e.tipo !== filtroTipo) return false
-    if (filtroDataInicio && e.data < filtroDataInicio) return false
-    if (filtroDataFim && e.data > filtroDataFim) return false
-    return true
-  })
-
-  const totalFiltrado = entradasFiltradas.reduce((sum, e) => sum + parseFloat(e.valor || 0), 0)
-
-  const totaisPorTipo = Object.keys(TIPOS).reduce((acc, tipo) => {
-    acc[tipo] = entradasFiltradas
-      .filter(e => e.tipo === tipo)
-      .reduce((sum, e) => sum + parseFloat(e.valor || 0), 0)
-    return acc
-  }, {})
-
-  function formatarValor(valor) {
-    return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-  }
-
-  function tipoCssClass(tipo) {
-    const map = { dizimo: 'tipo-dizimo', oferta_geral: 'tipo-oferta', campanha: 'tipo-campanha', venda_evento: 'tipo-venda', doacao: 'tipo-doacao' }
-    return map[tipo] || ''
-  }
+  const hoje = new Date()
+  const totalGeral = dizimos.reduce((s, d) => s + parseFloat(d.valor || 0), 0)
+  const totalMes = dizimos
+    .filter(d => {
+      const [ano, mes] = d.data.split('-').map(Number)
+      return ano === hoje.getFullYear() && mes === (hoje.getMonth() + 1)
+    })
+    .reduce((s, d) => s + parseFloat(d.valor || 0), 0)
 
   if (tabelaNaoExiste) {
     return (
       <div className="page-entradas">
         <div className="aviso-setup">
           <h2>Configuração necessária</h2>
-          <p>A tabela <code>entradas_financeiras</code> ainda não foi criada no Supabase.</p>
-          <p>Execute o SQL disponível em <code>supabase/schema-updates.sql</code> no seu projeto Supabase para habilitar esta funcionalidade.</p>
+          <p>Execute o SQL em <code>supabase/schema-updates.sql</code> no Supabase para habilitar esta página.</p>
         </div>
       </div>
     )
   }
 
-  if (carregando && entradas.length === 0) {
+  if (carregando && dizimos.length === 0) {
     return (
       <div className="page-entradas">
         <div className="loading-container">
           <div className="spinner"></div>
-          <p>Carregando entradas...</p>
+          <p>Carregando dízimos...</p>
         </div>
       </div>
     )
@@ -257,71 +188,33 @@ function Entradas() {
 
   return (
     <div className="page-entradas">
+
       <div className="entradas-header">
-        <h2>Entradas Financeiras</h2>
+        <div>
+          <h2>Registro de Dízimos</h2>
+          <p className="entradas-subtitulo">{dizimos.length} {dizimos.length === 1 ? 'registro' : 'registros'}</p>
+        </div>
         <button onClick={abrirModal} className="btn-cadastrar" disabled={carregando}>
-          + Registrar entrada
+          + Registrar dízimo
         </button>
       </div>
 
-      {/* Cards de resumo */}
-      <div className="resumo-grid">
-        <div className="resumo-card resumo-total">
-          <div className="resumo-label">Total (filtrado)</div>
-          <div className="resumo-valor">{formatarValor(totalFiltrado)}</div>
-          <div className="resumo-count">{entradasFiltradas.length} registros</div>
+      {/* Totais */}
+      <div className="totais-row">
+        <div className="total-card total-mes">
+          <span className="total-label">Dízimos este mês</span>
+          <span className="total-valor">{formatarValor(totalMes)}</span>
         </div>
-        {Object.entries(TIPOS).map(([tipo, label]) => (
-          totaisPorTipo[tipo] > 0 ? (
-            <div key={tipo} className={`resumo-card ${tipoCssClass(tipo)}`}>
-              <div className="resumo-label">{label}</div>
-              <div className="resumo-valor">{formatarValor(totaisPorTipo[tipo])}</div>
-            </div>
-          ) : null
-        ))}
-      </div>
-
-      {/* Filtros */}
-      <div className="filtros">
-        <div className="filtro-item">
-          <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} className="select-filtro">
-            <option value="">Todos os tipos</option>
-            {Object.entries(TIPOS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
+        <div className="total-card total-geral">
+          <span className="total-label">Total geral</span>
+          <span className="total-valor">{formatarValor(totalGeral)}</span>
         </div>
-        <div className="filtro-item">
-          <input
-            type="date"
-            value={filtroDataInicio}
-            onChange={e => setFiltroDataInicio(e.target.value)}
-            className="input-data-filtro"
-            title="Data início"
-          />
-        </div>
-        <div className="filtro-item">
-          <input
-            type="date"
-            value={filtroDataFim}
-            onChange={e => setFiltroDataFim(e.target.value)}
-            className="input-data-filtro"
-            title="Data fim"
-          />
-        </div>
-        {(filtroTipo || filtroDataInicio || filtroDataFim) && (
-          <button
-            className="btn-limpar-filtros"
-            onClick={() => { setFiltroTipo(''); setFiltroDataInicio(''); setFiltroDataFim('') }}
-          >
-            Limpar filtros
-          </button>
-        )}
-        <div className="filtro-info">{entradasFiltradas.length} de {entradas.length} entradas</div>
       </div>
 
       {/* Tabela */}
-      {entradasFiltradas.length === 0 ? (
+      {dizimos.length === 0 ? (
         <div className="sem-resultados">
-          <p>Nenhuma entrada encontrada</p>
+          <p>Nenhum dízimo registrado</p>
         </div>
       ) : (
         <div className="table-wrap">
@@ -329,31 +222,23 @@ function Entradas() {
             <thead>
               <tr>
                 <th>Data</th>
-                <th>Tipo</th>
-                <th>Membro</th>
-                <th>Descrição</th>
+                <th>Nome</th>
                 <th>Forma</th>
+                <th>Observação</th>
                 <th>Valor</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {entradasFiltradas.map(e => (
-                <tr key={e.id}>
-                  <td>{formatarDataBR(e.data)}</td>
+              {dizimos.map(d => (
+                <tr key={d.id}>
+                  <td>{formatarDataBR(d.data)}</td>
+                  <td>{d.membros?.nome || d.nome_membro || <span className="texto-anonimo">—</span>}</td>
+                  <td>{FORMAS[d.forma_pagamento] || d.forma_pagamento}</td>
+                  <td>{d.descricao || <span className="texto-anonimo">—</span>}</td>
+                  <td className="valor">{formatarValor(d.valor)}</td>
                   <td>
-                    <span className={`badge-tipo ${tipoCssClass(e.tipo)}`}>
-                      {TIPOS[e.tipo] || e.tipo}
-                      {e.campanha ? ` — ${e.campanha}` : ''}
-                      {e.evento ? ` — ${e.evento}` : ''}
-                    </span>
-                  </td>
-                  <td>{e.membros?.nome || e.nome_membro || <span className="texto-anonimo">Anônimo</span>}</td>
-                  <td>{e.descricao || '—'}</td>
-                  <td>{FORMAS[e.forma_pagamento] || e.forma_pagamento}</td>
-                  <td className="valor">{formatarValor(e.valor)}</td>
-                  <td>
-                    <button onClick={() => excluirEntrada(e.id)} className="btn-excluir">Excluir</button>
+                    <button onClick={() => excluir(d.id)} className="btn-excluir">Excluir</button>
                   </td>
                 </tr>
               ))}
@@ -362,50 +247,15 @@ function Entradas() {
         </div>
       )}
 
-      {/* Modal de registro */}
+      {/* Modal */}
       {modalAberto && (
         <div className="modal-overlay" onClick={() => setModalAberto(false)}>
           <div className="modal" onClick={ev => ev.stopPropagation()}>
-            <h3>Registrar Entrada Financeira</h3>
+            <h3>Registrar Dízimo</h3>
 
             <div className="form-grid">
-              <div className="form-group">
-                <label>Tipo de Entrada <span className="required-star">*</span></label>
-                <select name="tipo" value={form.tipo} onChange={handleChange}>
-                  {Object.entries(TIPOS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
-              </div>
-
-              {form.tipo === 'campanha' && (
-                <div className="form-group">
-                  <label>Campanha <span className="required-star">*</span></label>
-                  <div className="campanha-row">
-                    <select name="campanha" value={form.campanha} onChange={handleChange} className={erros.campanha ? 'input-error' : ''}>
-                      <option value="">Selecione uma campanha</option>
-                      {campanhas.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
-                    </select>
-                    <button type="button" className="btn-nova-campanha" onClick={() => setModalCampanha(true)}>+ Nova</button>
-                  </div>
-                  {erros.campanha && <span className="error-text">{erros.campanha}</span>}
-                </div>
-              )}
-
-              {form.tipo === 'venda_evento' && (
-                <div className="form-group">
-                  <label>Nome do Evento <span className="required-star">*</span></label>
-                  <input
-                    name="evento"
-                    value={form.evento}
-                    onChange={handleChange}
-                    placeholder="Ex: Bazar, Jantar de confraternização"
-                    className={erros.evento ? 'input-error' : ''}
-                  />
-                  {erros.evento && <span className="error-text">{erros.evento}</span>}
-                </div>
-              )}
-
-              <div className="form-group">
-                <label>Nome do irmão (opcional)</label>
+              <div className="form-group full">
+                <label>Nome do irmão</label>
                 <input
                   name="membro_nome"
                   value={form.membro_nome}
@@ -418,7 +268,7 @@ function Entradas() {
                   {membros.map(m => <option key={m.id} value={m.nome} />)}
                 </datalist>
                 {form.membro_nome && !form.membro_id && (
-                  <span className="aviso-texto">Não cadastrado — nome será salvo como texto livre</span>
+                  <span className="aviso-texto">Não cadastrado — nome salvo como texto livre</span>
                 )}
               </div>
 
@@ -451,21 +301,21 @@ function Entradas() {
                 {erros.data && <span className="error-text">{erros.data}</span>}
               </div>
 
-              <div className="form-group">
-                <label>Forma de Pagamento</label>
+              <div className="form-group full">
+                <label>Forma de pagamento</label>
                 <select name="forma_pagamento" value={form.forma_pagamento} onChange={handleChange}>
                   {Object.entries(FORMAS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
 
               <div className="form-group full">
-                <label>Descrição (opcional)</label>
+                <label>Observação</label>
                 <textarea
                   name="descricao"
                   value={form.descricao}
                   onChange={handleChange}
                   rows="2"
-                  placeholder="Observações adicionais"
+                  placeholder="Opcional"
                 />
               </div>
             </div>
@@ -474,50 +324,9 @@ function Entradas() {
               <button className="btn-cancelar" onClick={() => setModalAberto(false)} disabled={salvando}>
                 Cancelar
               </button>
-              <button className="btn-salvar" onClick={salvarEntrada} disabled={salvando || Object.keys(erros).length > 0}>
+              <button className="btn-salvar" onClick={salvar} disabled={salvando || Object.keys(erros).length > 0}>
                 {salvando ? 'Salvando...' : 'Salvar'}
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Nova Campanha */}
-      {modalCampanha && (
-        <div className="modal-overlay" onClick={() => setModalCampanha(false)}>
-          <div className="modal modal-sm" onClick={ev => ev.stopPropagation()}>
-            <h3>Nova Campanha</h3>
-            <div className="form-grid">
-              <div className="form-group full">
-                <label>Nome <span className="required-star">*</span></label>
-                <input
-                  value={novaCampanha.nome}
-                  onChange={e => setNovaCampanha(c => ({ ...c, nome: e.target.value }))}
-                  placeholder="Ex: Construção, Missões"
-                />
-              </div>
-              <div className="form-group full">
-                <label>Descrição</label>
-                <input
-                  value={novaCampanha.descricao}
-                  onChange={e => setNovaCampanha(c => ({ ...c, descricao: e.target.value }))}
-                />
-              </div>
-              <div className="form-group">
-                <label>Meta (R$)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={novaCampanha.meta}
-                  onChange={e => setNovaCampanha(c => ({ ...c, meta: e.target.value }))}
-                  placeholder="0,00"
-                />
-              </div>
-            </div>
-            <div className="modal-actions">
-              <button className="btn-cancelar" onClick={() => setModalCampanha(false)}>Cancelar</button>
-              <button className="btn-salvar" onClick={salvarCampanha}>Criar Campanha</button>
             </div>
           </div>
         </div>

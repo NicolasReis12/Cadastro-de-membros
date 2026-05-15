@@ -404,6 +404,21 @@ select {
   color: #991b1b;
 }
 
+/* COLUNAS ESPECIAIS */
+.td-nome {
+  font-weight: 600;
+  color: #1e1b4b;
+  white-space: nowrap;
+  min-width: 160px;
+}
+
+.td-obs {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* BADGES DE FUNÇÃO */
 .badge-funcao {
   display: inline-block;

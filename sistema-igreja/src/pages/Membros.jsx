@@ -418,13 +418,39 @@ function Membros() {
             <thead>
               <tr>
                 <th>Nome</th>
-                <th>Email</th>
-                <th>Telefone</th>
-                <th>Data de nascimento</th>
-                <th>CPF</th>
-                <th>Cidade</th>
                 <th>Função</th>
                 <th>Status</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>CPF</th>
+                <th>Dt. Nascimento</th>
+                <th>Estado Civil</th>
+                <th>Esposo/a</th>
+                <th>Nome do Pai</th>
+                <th>Nome da Mãe</th>
+                <th>Profissão</th>
+                <th>Grau de Instrução</th>
+                <th>Documento</th>
+                <th>CEP</th>
+                <th>Logradouro</th>
+                <th>Número</th>
+                <th>Complemento</th>
+                <th>Bairro</th>
+                <th>Cidade</th>
+                <th>UF</th>
+                <th>Religião Anterior</th>
+                <th>Dt. Conversão</th>
+                <th>Dt. Batismo</th>
+                <th>Ministro Oficiante</th>
+                <th>Bat. Espírito Santo</th>
+                <th>Dt. Bat. Espírito</th>
+                <th>Cura/Libertação</th>
+                <th>Desc. Cura</th>
+                <th>Parentes na Igreja</th>
+                <th>Nomes dos Parentes</th>
+                <th>Falecido</th>
+                <th>Dt. Falecimento</th>
+                <th>Observações</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -432,12 +458,7 @@ function Membros() {
             <tbody>
               {membrosFiltrados.map(m => (
                 <tr key={m.id}>
-                  <td>{m.nome}</td>
-                  <td>{m.email}</td>
-                  <td>{m.telefone}</td>
-                  <td>{formatarDataBR(m.data_nascimento)}</td>
-                  <td>{m.cpf}</td>
-                  <td>{m.cidade}</td>
+                  <td className="td-nome">{m.nome}</td>
                   <td>
                     <span className={`badge-funcao ${funcaoCssClass(m.funcao)}`}>
                       {m.funcao || 'Membro'}
@@ -448,6 +469,37 @@ function Membros() {
                       {m.status_membro || 'Ativo'}
                     </span>
                   </td>
+                  <td>{m.email || '—'}</td>
+                  <td>{m.telefone || '—'}</td>
+                  <td>{m.cpf || '—'}</td>
+                  <td>{formatarDataBR(m.data_nascimento) || '—'}</td>
+                  <td>{m.estado_civil || '—'}</td>
+                  <td>{m.nome_esposo || '—'}</td>
+                  <td>{m.nome_pai || '—'}</td>
+                  <td>{m.nome_mae || '—'}</td>
+                  <td>{m.profissao || '—'}</td>
+                  <td>{m.grau_instrucao || '—'}</td>
+                  <td>{m.documento_identidade || '—'}</td>
+                  <td>{m.cep || '—'}</td>
+                  <td>{m.logradouro || '—'}</td>
+                  <td>{m.numero || '—'}</td>
+                  <td>{m.complemento || '—'}</td>
+                  <td>{m.bairro || '—'}</td>
+                  <td>{m.cidade || '—'}</td>
+                  <td>{m.uf || '—'}</td>
+                  <td>{m.religiao_anterior || '—'}</td>
+                  <td>{formatarDataBR(m.data_conversao) || '—'}</td>
+                  <td>{formatarDataBR(m.data_batismo) || '—'}</td>
+                  <td>{m.ministro_oficiante || '—'}</td>
+                  <td>{m.batizado_espirito_santo || '—'}</td>
+                  <td>{formatarDataBR(m.data_batismo_espirito) || '—'}</td>
+                  <td>{m.recebeu_cura_libertacao || '—'}</td>
+                  <td className="td-obs">{m.descricao_cura_libertacao || '—'}</td>
+                  <td>{m.parentes_na_igreja || '—'}</td>
+                  <td>{m.nome_parentes_igreja || '—'}</td>
+                  <td>{m.falecido || '—'}</td>
+                  <td>{formatarDataBR(m.data_da_morte) || '—'}</td>
+                  <td className="td-obs">{m.observacoes || '—'}</td>
 
                   <td>
                     <div className="actions">
