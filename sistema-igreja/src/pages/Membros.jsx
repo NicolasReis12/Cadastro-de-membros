@@ -36,7 +36,7 @@ function Membros() {
     data_conversao: '', data_batismo: '', ministro_oficiante: '',
     batizado_espirito_santo: '', data_batismo_espirito: '',
     observacoes: '',
-    funcao: 'Membro',
+    funcao: 'MEMBRO',
     status_membro: 'Ativo'
   }
 
@@ -122,7 +122,7 @@ function Membros() {
 
     // Filtro por função
     if (filtroFuncao) {
-      resultado = resultado.filter(m => (m.funcao || 'Membro') === filtroFuncao)
+      resultado = resultado.filter(m => (m.funcao || 'MEMBRO') === filtroFuncao)
     }
 
     // Filtro por status do membro
@@ -383,12 +383,27 @@ function Membros() {
         <div className="filtro-item">
           <select value={filtroFuncao} onChange={(e) => setFiltroFuncao(e.target.value)} className="select-filtro">
             <option value="">Todas as funções</option>
-            <option value="Membro">Membro</option>
-            <option value="Diácono">Diácono</option>
-            <option value="Presbítero">Presbítero</option>
-            <option value="Pastor">Pastor</option>
-            <option value="Líder de Ministério">Líder de Ministério</option>
-            <option value="Visitante">Visitante</option>
+            <option value="COORDENADOR REGIONAL">COORDENADOR REGIONAL</option>
+            <option value="VICE-PRESIDENTE">VICE-PRESIDENTE</option>
+            <option value="PASTOR PRESIDENTE">PASTOR PRESIDENTE</option>
+            <option value="TESOUREIRO">TESOUREIRO</option>
+            <option value="PRESIDENTE DE GMH">PRESIDENTE DE GMH</option>
+            <option value="PRESIDENTE GMM">PRESIDENTE GMM</option>
+            <option value="PRESIDENTE GMJ">PRESIDENTE GMJ</option>
+            <option value="PRESIDENTE JUNIORES">PRESIDENTE JUNIORES</option>
+            <option value="PRESIDENTE CRIANÇAS">PRESIDENTE CRIANÇAS</option>
+            <option value="DEBQ">DEBQ</option>
+            <option value="UNIORA">UNIORA</option>
+            <option value="PRESIDENTE UNIORA">PRESIDENTE UNIORA</option>
+            <option value="PRESIDENTE ASSISTENCIA SOCIAL">PRESIDENTE ASSISTENCIA SOCIAL</option>
+            <option value="PATRIMÔNIO">PATRIMÔNIO</option>
+            <option value="MEMBRO">MEMBRO</option>
+            <option value="DIACONO">DIACONO</option>
+            <option value="SECRETARIA">SECRETARIA</option>
+            <option value="DIACONISA">DIACONISA</option>
+            <option value="MÍDIA">MÍDIA</option>
+            <option value="SOM">SOM</option>
+            <option value="PRESIDENTE MINISTERIO DE LOUVOR">PRESIDENTE MINISTERIO DE LOUVOR</option>
           </select>
         </div>
 
@@ -820,12 +835,27 @@ function Membros() {
               <div className="form-group">
                 <label>Função/Cargo na Igreja</label>
                 <select name="funcao" value={form.funcao} onChange={handleChange}>
-                  <option value="Membro">Membro</option>
-                  <option value="Diácono">Diácono</option>
-                  <option value="Presbítero">Presbítero</option>
-                  <option value="Pastor">Pastor</option>
-                  <option value="Líder de Ministério">Líder de Ministério</option>
-                  <option value="Visitante">Visitante</option>
+                  <option value="COORDENADOR REGIONAL">COORDENADOR REGIONAL</option>
+                  <option value="VICE-PRESIDENTE">VICE-PRESIDENTE</option>
+                  <option value="PASTOR PRESIDENTE">PASTOR PRESIDENTE</option>
+                  <option value="TESOUREIRO">TESOUREIRO</option>
+                  <option value="PRESIDENTE DE GMH">PRESIDENTE DE GMH</option>
+                  <option value="PRESIDENTE GMM">PRESIDENTE GMM</option>
+                  <option value="PRESIDENTE GMJ">PRESIDENTE GMJ</option>
+                  <option value="PRESIDENTE JUNIORES">PRESIDENTE JUNIORES</option>
+                  <option value="PRESIDENTE CRIANÇAS">PRESIDENTE CRIANÇAS</option>
+                  <option value="DEBQ">DEBQ</option>
+                  <option value="UNIORA">UNIORA</option>
+                  <option value="PRESIDENTE UNIORA">PRESIDENTE UNIORA</option>
+                  <option value="PRESIDENTE ASSISTENCIA SOCIAL">PRESIDENTE ASSISTENCIA SOCIAL</option>
+                  <option value="PATRIMÔNIO">PATRIMÔNIO</option>
+                  <option value="MEMBRO">MEMBRO</option>
+                  <option value="DIACONO">DIACONO</option>
+                  <option value="SECRETARIA">SECRETARIA</option>
+                  <option value="DIACONISA">DIACONISA</option>
+                  <option value="MÍDIA">MÍDIA</option>
+                  <option value="SOM">SOM</option>
+                  <option value="PRESIDENTE MINISTERIO DE LOUVOR">PRESIDENTE MINISTERIO DE LOUVOR</option>
                 </select>
               </div>
 
