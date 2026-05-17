@@ -850,7 +850,7 @@ function Membros() {
                   <option value="PRESIDENTE ASSISTENCIA SOCIAL">PRESIDENTE ASSISTENCIA SOCIAL</option>
                   <option value="PATRIMÔNIO">PATRIMÔNIO</option>
                   <option value="MEMBRO">MEMBRO</option>
-                  <option value="DIACONO">DIACONO</option>
+                  <option value="DIACONO">DIÁCONO</option>
                   <option value="SECRETARIA">SECRETARIA</option>
                   <option value="DIACONISA">DIACONISA</option>
                   <option value="MÍDIA">MÍDIA</option>
