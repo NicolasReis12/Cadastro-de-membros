@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import logoIeq from '../assets/logo_ieq.png'
 import './Navbar.css'
 
 function Navbar() {
@@ -8,12 +9,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="logo">
-        <div className="logo-icon">
-          <div className="logo-icon-q q-red"></div>
-          <div className="logo-icon-q q-yellow"></div>
-          <div className="logo-icon-q q-blue"></div>
-          <div className="logo-icon-q q-purple"></div>
-        </div>
+        <img src={logoIeq} alt="Logo IEQ" className="logo-img" />
         <div>
           <div className="logo-title">{igreja?.nome || 'Sistema de Membros'}</div>
           <div className="logo-subtitle">Sistema de membros</div>

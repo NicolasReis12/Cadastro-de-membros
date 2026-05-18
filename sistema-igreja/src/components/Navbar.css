@@ -19,6 +19,13 @@
   gap: 10px;
 }
 
+.logo-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
 /* Ícone quadrangular (2×2 grid de cores IEQ) */
 .logo-icon {
   width: 32px;

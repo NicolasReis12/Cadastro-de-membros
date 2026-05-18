@@ -20,6 +20,8 @@ function Membros() {
   const [busca, setBusca] = useState('')
   const [filtroFuncao, setFiltroFuncao] = useState('')
   const [filtroStatusMembro, setFiltroStatusMembro] = useState('')
+  const [filtroNascimentoInicio, setFiltroNascimentoInicio] = useState('')
+  const [filtroNascimentoFim, setFiltroNascimentoFim] = useState('')
 
   // Validação
   const [erros, setErros] = useState({})
@@ -51,7 +53,7 @@ function Membros() {
   // Filtro automático quando mudanças ocorrem
   useEffect(() => {
     filtrarMembros()
-  }, [membros, busca, filtroFuncao, filtroStatusMembro])
+  }, [membros, busca, filtroFuncao, filtroStatusMembro, filtroNascimentoInicio, filtroNascimentoFim])
 
   const validarCampo = (name, value) => {
     setErros(prev => {
@@ -130,6 +132,14 @@ function Membros() {
     // Filtro por status do membro
     if (filtroStatusMembro) {
       resultado = resultado.filter(m => (m.status_membro || 'Ativo') === filtroStatusMembro)
+    }
+
+    // Filtro por data de nascimento
+    if (filtroNascimentoInicio) {
+      resultado = resultado.filter(m => m.data_nascimento && m.data_nascimento >= filtroNascimentoInicio)
+    }
+    if (filtroNascimentoFim) {
+      resultado = resultado.filter(m => m.data_nascimento && m.data_nascimento <= filtroNascimentoFim)
     }
 
     setMembrosFiltrados(resultado)
@@ -417,6 +427,26 @@ function Membros() {
             <option value="Transferido">Transferido</option>
             <option value="Falecido">Falecido</option>
           </select>
+        </div>
+
+        <div className="filtro-item filtro-nascimento">
+          <label className="filtro-label">Nascimento de</label>
+          <input
+            type="date"
+            value={filtroNascimentoInicio}
+            onChange={(e) => setFiltroNascimentoInicio(e.target.value)}
+            className="select-filtro"
+          />
+        </div>
+
+        <div className="filtro-item filtro-nascimento">
+          <label className="filtro-label">até</label>
+          <input
+            type="date"
+            value={filtroNascimentoFim}
+            onChange={(e) => setFiltroNascimentoFim(e.target.value)}
+            className="select-filtro"
+          />
         </div>
 
         <div className="filtro-info">

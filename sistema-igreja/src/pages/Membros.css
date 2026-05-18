@@ -314,6 +314,18 @@ select {
   box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
 }
 
+.filtro-nascimento {
+  flex: 0 1 180px;
+  min-width: 150px;
+}
+
+.filtro-label {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .filtro-info {
   color: #6b7280;
   font-size: 13px;
