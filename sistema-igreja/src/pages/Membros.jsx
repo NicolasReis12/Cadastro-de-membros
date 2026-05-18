@@ -3,9 +3,11 @@ import './Membros.css'
 import { useState, useEffect, useContext } from 'react'
 import { validateForm, validateEmail, validateCPF, validatePhone, convertDDMMYYYYtoYYYYMMDD, formatarDataBR, validateDataBR, isDataFutura } from '../utils/validation'
 import { ToastContext } from '../App'
+import { useAuth } from '../contexts/AuthContext'
 
 function Membros() {
   const { showToast } = useContext(ToastContext)
+  const { igreja } = useAuth()
   
   const [modalAberto, setModalAberto] = useState(false)
   const [membros, setMembros] = useState([])
@@ -275,7 +277,7 @@ function Membros() {
         error = response.error
       } else {
         const { id, ...novoForm } = formLimpo
-        const response = await createMembro(novoForm)
+        const response = await createMembro({ ...novoForm, igreja_id: igreja?.id })
         error = response.error
       }
 

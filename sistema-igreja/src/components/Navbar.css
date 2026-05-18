@@ -57,6 +57,26 @@
 .menu {
   display: flex;
   gap: 2px;
+  align-items: center;
+}
+
+.btn-sair {
+  background: transparent;
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  border-radius: 6px;
+  color: #c4b5fd;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 13px;
+  margin-left: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-sair:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #fca5a5;
 }
 
 .link {

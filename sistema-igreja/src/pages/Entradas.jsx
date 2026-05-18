@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 import { getEntradas, createEntrada, deleteEntrada } from '../services/entradasService'
 import { getMembros } from '../services/membrosService'
 import { ToastContext } from '../App'
+import { useAuth } from '../contexts/AuthContext'
 import { convertDDMMYYYYtoYYYYMMDD, validateDataBR, isDataFutura, formatarDataBR } from '../utils/validation'
 import './Entradas.css'
 
@@ -23,6 +24,7 @@ const initialForm = {
 
 function Entradas() {
   const { showToast } = useContext(ToastContext)
+  const { igreja } = useAuth()
 
   const [dizimos, setDizimos] = useState([])
   const [membros, setMembros] = useState([])
@@ -121,7 +123,8 @@ function Entradas() {
         valor: parseFloat(form.valor),
         data: convertDDMMYYYYtoYYYYMMDD(form.data),
         forma_pagamento: form.forma_pagamento,
-        descricao: form.descricao || null
+        descricao: form.descricao || null,
+        igreja_id: igreja?.id
       }
 
       const { error } = await createEntrada(dados)

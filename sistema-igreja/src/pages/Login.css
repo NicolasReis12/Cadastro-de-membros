@@ -1,0 +1,141 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f0e1a;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  background: #1a1730;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
+.auth-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.auth-logo-icon div {
+  border-radius: 2px;
+}
+
+.auth-logo-title {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.auth-logo-sub {
+  color: #a5b4fc;
+  font-size: 11px;
+  margin-top: 1px;
+}
+
+.auth-heading {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 1.5rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-group label {
+  color: #c4b5fd;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.auth-group input {
+  background: #0f0e1a;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.auth-group input:focus {
+  border-color: #7c3aed;
+}
+
+.auth-group input::placeholder {
+  color: #4b4680;
+}
+
+.auth-erro {
+  color: #f87171;
+  font-size: 13px;
+  margin: 0;
+}
+
+.auth-btn {
+  background: #7c3aed;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px;
+  margin-top: 4px;
+  transition: background 0.15s;
+}
+
+.auth-btn:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-link-text {
+  color: #7c7aaa;
+  font-size: 13px;
+  margin: 1.25rem 0 0;
+  text-align: center;
+}
+
+.auth-link-text a {
+  color: #a78bfa;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link-text a:hover {
+  text-decoration: underline;
+}
