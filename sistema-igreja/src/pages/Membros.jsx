@@ -427,6 +427,8 @@ function Membros() {
             <option value="Inativo">Inativo</option>
             <option value="Transferido">Transferido</option>
             <option value="Falecido">Falecido</option>
+            <option value="Arquivo Morto">Arquivo Morto</option>
+
           </select>
         </div>
 
@@ -900,6 +902,8 @@ function Membros() {
                   <option value="Inativo">Inativo</option>
                   <option value="Transferido">Transferido</option>
                   <option value="Falecido">Falecido</option>
+                  <option value="ArquivoMorto">Arquivo Morto</option>
+
                 </select>
               </div>
             </div>

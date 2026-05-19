@@ -4,7 +4,9 @@ import logoIeq from '../assets/logo_ieq.png'
 import './Navbar.css'
 
 function Navbar() {
-  const { igreja, signOut } = useAuth()
+  const { igreja, isAdmin, permissoes, signOut } = useAuth()
+
+  const canAccess = (modulo) => isAdmin || permissoes?.[modulo] === true
 
   return (
     <nav className="navbar">
@@ -17,13 +19,30 @@ function Navbar() {
       </div>
 
       <div className="menu">
-        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/">Dashboard</NavLink>
-        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/membros">Membros</NavLink>
-        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/entradas">Dízimos</NavLink>
-        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/ofertas">Ofertas</NavLink>
-        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/ofertas-especiais">Of. Especiais</NavLink>
-        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/aniversariantes">Aniversariantes</NavLink>
-        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/relatorios">Relatórios</NavLink>
+        {canAccess('dashboard') && (
+          <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/">Dashboard</NavLink>
+        )}
+        {canAccess('membros') && (
+          <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/membros">Membros</NavLink>
+        )}
+        {canAccess('entradas') && (
+          <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/entradas">Dízimos</NavLink>
+        )}
+        {canAccess('ofertas') && (
+          <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/ofertas">Ofertas</NavLink>
+        )}
+        {canAccess('ofertas_especiais') && (
+          <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/ofertas-especiais">Of. Especiais</NavLink>
+        )}
+        {canAccess('aniversariantes') && (
+          <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/aniversariantes">Aniversariantes</NavLink>
+        )}
+        {canAccess('relatorios') && (
+          <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/relatorios">Relatórios</NavLink>
+        )}
+        {isAdmin && (
+          <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/gerenciar-usuarios">Usuários</NavLink>
+        )}
         <button className="btn-sair" onClick={signOut}>Sair</button>
       </div>
     </nav>
