@@ -1,8 +1,13 @@
 import { useState, useContext } from 'react'
 import { getMembros } from '../services/membrosService'
 import { getEntradas } from '../services/entradasService'
-import { getDizimos } from '../services/dizimosService'
-import { gerarPDFMensalEntradas, gerarExcelMembros, gerarExcelFinanceiro } from '../services/relatoriosService'
+import { getOfertas } from '../services/ofertasService'
+import { getOfertasEspeciais } from '../services/ofertasEspeciaisService'
+import {
+  gerarPDFMensalEntradas, gerarExcelMembros, gerarExcelFinanceiro,
+  gerarPDFOfertas, gerarExcelOfertas,
+  gerarPDFOfertasEspeciais, gerarExcelOfertasEspeciais
+} from '../services/relatoriosService'
 import { ToastContext } from '../App'
 import './Relatorios.css'
 
@@ -101,6 +106,77 @@ function Relatorios() {
     }
   }
 
+  function periodo() {
+    const dataInicio = `${ano}-${String(mes).padStart(2, '0')}-01`
+    const ultimoDia = new Date(ano, mes, 0).getDate()
+    const dataFim = `${ano}-${String(mes).padStart(2, '0')}-${ultimoDia}`
+    return { dataInicio, dataFim }
+  }
+
+  async function exportarPDFOfertas() {
+    setGerando('pdf-ofertas')
+    try {
+      const { dataInicio, dataFim } = periodo()
+      const { data, error } = await getOfertas({ dataInicio, dataFim })
+      if (error) { showToast('Erro ao buscar ofertas: ' + error.message, 'error'); return }
+      if (!data || data.length === 0) { showToast('Nenhuma oferta no período selecionado', 'warning'); return }
+      gerarPDFOfertas(data, mes, ano)
+      showToast('PDF de Ofertas gerado com sucesso', 'success')
+    } catch (err) {
+      showToast('Erro ao gerar PDF: ' + err.message, 'error')
+    } finally {
+      setGerando('')
+    }
+  }
+
+  async function exportarExcelOfertas() {
+    setGerando('excel-ofertas')
+    try {
+      const { dataInicio, dataFim } = periodo()
+      const { data, error } = await getOfertas({ dataInicio, dataFim })
+      if (error) { showToast('Erro ao buscar ofertas: ' + error.message, 'error'); return }
+      if (!data || data.length === 0) { showToast('Nenhuma oferta no período selecionado', 'warning'); return }
+      gerarExcelOfertas(data, mes, ano)
+      showToast('Excel de Ofertas gerado com sucesso', 'success')
+    } catch (err) {
+      showToast('Erro ao gerar Excel: ' + err.message, 'error')
+    } finally {
+      setGerando('')
+    }
+  }
+
+  async function exportarPDFOfertasEspeciais() {
+    setGerando('pdf-of-esp')
+    try {
+      const { dataInicio, dataFim } = periodo()
+      const { data, error } = await getOfertasEspeciais({ dataInicio, dataFim })
+      if (error) { showToast('Erro ao buscar ofertas especiais: ' + error.message, 'error'); return }
+      if (!data || data.length === 0) { showToast('Nenhuma oferta especial no período selecionado', 'warning'); return }
+      gerarPDFOfertasEspeciais(data, mes, ano)
+      showToast('PDF de Ofertas Especiais gerado com sucesso', 'success')
+    } catch (err) {
+      showToast('Erro ao gerar PDF: ' + err.message, 'error')
+    } finally {
+      setGerando('')
+    }
+  }
+
+  async function exportarExcelOfertasEspeciais() {
+    setGerando('excel-of-esp')
+    try {
+      const { dataInicio, dataFim } = periodo()
+      const { data, error } = await getOfertasEspeciais({ dataInicio, dataFim })
+      if (error) { showToast('Erro ao buscar ofertas especiais: ' + error.message, 'error'); return }
+      if (!data || data.length === 0) { showToast('Nenhuma oferta especial no período selecionado', 'warning'); return }
+      gerarExcelOfertasEspeciais(data, mes, ano)
+      showToast('Excel de Ofertas Especiais gerado com sucesso', 'success')
+    } catch (err) {
+      showToast('Erro ao gerar Excel: ' + err.message, 'error')
+    } finally {
+      setGerando('')
+    }
+  }
+
   const nomeMes = MESES.find(m => m.v === mes)?.l
 
   return (
@@ -145,7 +221,7 @@ function Relatorios() {
             </svg>
           </div>
           <div className="relatorio-info">
-            <h4>Relatório Mensal de Entradas</h4>
+            <h4>Relatório Mensal de Dizimos </h4>
             <p>PDF com todas as entradas financeiras do mês, agrupadas por categoria com totais.</p>
             <ul>
               <li>Data, tipo, membro, valor e forma de pagamento</li>
@@ -212,6 +288,97 @@ function Relatorios() {
             disabled={gerando !== ''}
           >
             {gerando === 'excel-financeiro' ? 'Gerando...' : 'Exportar Excel'}
+          </button>
+        </div>
+
+        {/* PDF Ofertas */}
+        <div className="relatorio-card">
+          <div className="relatorio-icon relatorio-icon-pdf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div className="relatorio-info">
+            <h4>Relatório de Ofertas — PDF</h4>
+            <p>PDF com todas as ofertas do mês selecionado e total geral.</p>
+            <ul>
+              <li>Data, membro, forma de pagamento, valor</li>
+              <li>Total geral ao final</li>
+            </ul>
+          </div>
+          <button className="btn-exportar btn-pdf" onClick={exportarPDFOfertas} disabled={gerando !== ''}>
+            {gerando === 'pdf-ofertas' ? 'Gerando...' : 'Exportar PDF'}
+          </button>
+        </div>
+
+        {/* Excel Ofertas */}
+        <div className="relatorio-card">
+          <div className="relatorio-icon relatorio-icon-excel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div className="relatorio-info">
+            <h4>Relatório de Ofertas — Excel</h4>
+            <p>Planilha com todas as ofertas do mês e total na última linha.</p>
+            <ul>
+              <li>Data, membro, forma, observação e valor</li>
+            </ul>
+          </div>
+          <button className="btn-exportar btn-excel" onClick={exportarExcelOfertas} disabled={gerando !== ''}>
+            {gerando === 'excel-ofertas' ? 'Gerando...' : 'Exportar Excel'}
+          </button>
+        </div>
+
+        {/* PDF Ofertas Especiais */}
+        <div className="relatorio-card">
+          <div className="relatorio-icon relatorio-icon-pdf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div className="relatorio-info">
+            <h4>Relatório de Ofertas Especiais — PDF</h4>
+            <p>PDF com as ofertas especiais do mês e resumo por motivo/evento.</p>
+            <ul>
+              <li>Data, membro, motivo/evento, forma, valor</li>
+              <li>Resumo por motivo ao final</li>
+            </ul>
+          </div>
+          <button className="btn-exportar btn-pdf" onClick={exportarPDFOfertasEspeciais} disabled={gerando !== ''}>
+            {gerando === 'pdf-of-esp' ? 'Gerando...' : 'Exportar PDF'}
+          </button>
+        </div>
+
+        {/* Excel Ofertas Especiais */}
+        <div className="relatorio-card">
+          <div className="relatorio-icon relatorio-icon-excel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div className="relatorio-info">
+            <h4>Relatório de Ofertas Especiais — Excel</h4>
+            <p>Planilha com duas abas: registros detalhados e resumo por motivo.</p>
+            <ul>
+              <li>Aba "Ofertas Especiais": todos os registros</li>
+              <li>Aba "Resumo por Motivo": total por evento</li>
+            </ul>
+          </div>
+          <button className="btn-exportar btn-excel" onClick={exportarExcelOfertasEspeciais} disabled={gerando !== ''}>
+            {gerando === 'excel-of-esp' ? 'Gerando...' : 'Exportar Excel'}
           </button>
         </div>
 

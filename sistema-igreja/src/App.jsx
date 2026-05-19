@@ -5,6 +5,8 @@ import Dashboard from './pages/Dashboard'
 import Membros from './pages/Membros'
 import Aniversariantes from './pages/Aniversariantes'
 import Entradas from './pages/Entradas'
+import Ofertas from './pages/Ofertas'
+import OfertasEspeciais from './pages/OfertasEspeciais'
 import Relatorios from './pages/Relatorios'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -30,6 +32,8 @@ function App() {
                 <Route path="/membros" element={<Membros />} />
                 <Route path="/aniversariantes" element={<Aniversariantes />} />
                 <Route path="/entradas" element={<Entradas />} />
+                <Route path="/ofertas" element={<Ofertas />} />
+                <Route path="/ofertas-especiais" element={<OfertasEspeciais />} />
                 <Route path="/relatorios" element={<Relatorios />} />
               </Route>
             </Route>

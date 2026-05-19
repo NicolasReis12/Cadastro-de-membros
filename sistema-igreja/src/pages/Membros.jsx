@@ -415,6 +415,7 @@ function Membros() {
             <option value="DIACONISA">DIACONISA</option>
             <option value="MÍDIA">MÍDIA</option>
             <option value="SOM">SOM</option>
+             <option value="ARQUIVO MORTO">ARQUIVO MORTO</option>
             <option value="PRESIDENTE MINISTERIO DE LOUVOR">PRESIDENTE MINISTERIO DE LOUVOR</option>
           </select>
         </div>
@@ -887,6 +888,7 @@ function Membros() {
                   <option value="DIACONISA">DIACONISA</option>
                   <option value="MÍDIA">MÍDIA</option>
                   <option value="SOM">SOM</option>
+                  <option value="ARQUIVO MORTO">ARQUIVO MORTO</option>
                   <option value="PRESIDENTE MINISTERIO DE LOUVOR">PRESIDENTE MINISTERIO DE LOUVOR</option>
                 </select>
               </div>

@@ -147,8 +147,7 @@
   flex-wrap: wrap;
 }
 
-.aniv-data,
-.aniv-telefone {
+.aniv-data {
   font-size: 12px;
   color: #6b7280;
   display: flex;
@@ -156,10 +155,28 @@
   gap: 4px;
 }
 
-.aniv-data svg,
-.aniv-telefone svg {
+.aniv-data svg {
   flex-shrink: 0;
   opacity: 0.6;
+}
+
+.aniv-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #25d366;
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.aniv-whatsapp:hover {
+  background: #1ebe57;
 }
 
 .aniv-anos {
@@ -254,7 +271,7 @@
 /* RESPONSIVO */
 @media (max-width: 640px) {
   .aniv-meta { gap: 8px; }
-  .aniv-telefone { display: none; }
+  .aniv-whatsapp { display: none; }
   .aniv-nome { font-size: 14px; }
   .card-aniversariante { padding: 12px 12px; gap: 10px; }
   .aniv-avatar { width: 40px; height: 40px; font-size: 16px; }

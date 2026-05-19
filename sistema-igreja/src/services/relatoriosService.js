@@ -146,6 +146,171 @@ export function gerarExcelMembros(membros) {
   saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'membros.xlsx')
 }
 
+export function gerarPDFOfertas(ofertas, mes, ano) {
+  const doc = new jsPDF()
+  const nomeMes = MESES[mes - 1]
+
+  doc.setFontSize(18)
+  doc.setTextColor(109, 40, 217)
+  doc.text('Relatório de Ofertas', 14, 20)
+
+  doc.setFontSize(11)
+  doc.setTextColor(107, 114, 128)
+  doc.text(`Período: ${nomeMes} de ${ano}`, 14, 30)
+  doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 14, 37)
+
+  const total = ofertas.reduce((s, o) => s + parseFloat(o.valor || 0), 0)
+
+  const tableData = ofertas.map(o => [
+    formatarDataBR(o.data),
+    o.membros?.nome || o.nome_membro || 'Anônimo',
+    FORMAS_LABEL[o.forma_pagamento] || o.forma_pagamento,
+    o.descricao || '—',
+    formatarValorBR(o.valor)
+  ])
+
+  autoTable(doc, {
+    head: [['Data', 'Membro', 'Forma', 'Observação', 'Valor']],
+    body: tableData,
+    startY: 45,
+    styles: { fontSize: 9, cellPadding: 3 },
+    headStyles: { fillColor: [109, 40, 217], textColor: 255 },
+    alternateRowStyles: { fillColor: [245, 243, 255] }
+  })
+
+  const finalY = doc.lastAutoTable.finalY + 10
+  autoTable(doc, {
+    head: [['', '']],
+    body: [['TOTAL GERAL', formatarValorBR(total)]],
+    startY: finalY,
+    styles: { fontSize: 11, fontStyle: 'bold' },
+    headStyles: { fillColor: [109, 40, 217], textColor: 255 },
+    bodyStyles: { fillColor: [237, 233, 254] }
+  })
+
+  doc.save(`ofertas-${ano}-${String(mes).padStart(2, '0')}.pdf`)
+}
+
+export function gerarExcelOfertas(ofertas, mes, ano) {
+  const nomeMes = MESES[mes - 1]
+  const wb = XLSX.utils.book_new()
+
+  const data = ofertas.map(o => ({
+    'Data': formatarDataBR(o.data),
+    'Membro': o.membros?.nome || o.nome_membro || 'Anônimo',
+    'Forma de Pagamento': FORMAS_LABEL[o.forma_pagamento] || o.forma_pagamento,
+    'Observação': o.descricao || '',
+    'Valor (R$)': parseFloat(o.valor || 0)
+  }))
+  const total = ofertas.reduce((s, o) => s + parseFloat(o.valor || 0), 0)
+  data.push({ 'Data': '', 'Membro': '', 'Forma de Pagamento': '', 'Observação': 'TOTAL', 'Valor (R$)': total })
+
+  const ws = XLSX.utils.json_to_sheet(data)
+  XLSX.utils.book_append_sheet(wb, ws, 'Ofertas')
+
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+  saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `ofertas-${nomeMes}-${ano}.xlsx`)
+}
+
+export function gerarPDFOfertasEspeciais(ofertas, mes, ano) {
+  const doc = new jsPDF()
+  const nomeMes = MESES[mes - 1]
+
+  doc.setFontSize(18)
+  doc.setTextColor(5, 150, 105)
+  doc.text('Relatório de Ofertas Especiais', 14, 20)
+
+  doc.setFontSize(11)
+  doc.setTextColor(107, 114, 128)
+  doc.text(`Período: ${nomeMes} de ${ano}`, 14, 30)
+  doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 14, 37)
+
+  const total = ofertas.reduce((s, o) => s + parseFloat(o.valor || 0), 0)
+
+  const tableData = ofertas.map(o => [
+    formatarDataBR(o.data),
+    o.membros?.nome || o.nome_membro || 'Anônimo',
+    o.motivo || '—',
+    FORMAS_LABEL[o.forma_pagamento] || o.forma_pagamento,
+    o.descricao || '—',
+    formatarValorBR(o.valor)
+  ])
+
+  autoTable(doc, {
+    head: [['Data', 'Membro', 'Motivo/Evento', 'Forma', 'Observação', 'Valor']],
+    body: tableData,
+    startY: 45,
+    styles: { fontSize: 9, cellPadding: 3 },
+    headStyles: { fillColor: [5, 150, 105], textColor: 255 },
+    alternateRowStyles: { fillColor: [236, 253, 245] }
+  })
+
+  const finalY = doc.lastAutoTable.finalY + 10
+
+  // Resumo por motivo
+  const motivos = [...new Set(ofertas.map(o => o.motivo).filter(Boolean))]
+  const resumoData = motivos.map(m => {
+    const sub = ofertas.filter(o => o.motivo === m).reduce((s, o) => s + parseFloat(o.valor || 0), 0)
+    return [m, formatarValorBR(sub)]
+  })
+  resumoData.push(['TOTAL GERAL', formatarValorBR(total)])
+
+  if (resumoData.length > 1) {
+    doc.setFontSize(12)
+    doc.setTextColor(17, 24, 39)
+    doc.text('Resumo por Motivo/Evento', 14, finalY)
+
+    autoTable(doc, {
+      head: [['Motivo/Evento', 'Total']],
+      body: resumoData,
+      startY: finalY + 5,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [55, 65, 81] },
+      didParseCell: (data) => {
+        if (data.row.index === resumoData.length - 1) {
+          data.cell.styles.fontStyle = 'bold'
+          data.cell.styles.fillColor = [209, 250, 229]
+        }
+      }
+    })
+  }
+
+  doc.save(`ofertas-especiais-${ano}-${String(mes).padStart(2, '0')}.pdf`)
+}
+
+export function gerarExcelOfertasEspeciais(ofertas, mes, ano) {
+  const nomeMes = MESES[mes - 1]
+  const wb = XLSX.utils.book_new()
+
+  const data = ofertas.map(o => ({
+    'Data': formatarDataBR(o.data),
+    'Membro': o.membros?.nome || o.nome_membro || 'Anônimo',
+    'Motivo/Evento': o.motivo || '',
+    'Forma de Pagamento': FORMAS_LABEL[o.forma_pagamento] || o.forma_pagamento,
+    'Observação': o.descricao || '',
+    'Valor (R$)': parseFloat(o.valor || 0)
+  }))
+  const total = ofertas.reduce((s, o) => s + parseFloat(o.valor || 0), 0)
+  data.push({ 'Data': '', 'Membro': '', 'Motivo/Evento': '', 'Forma de Pagamento': '', 'Observação': 'TOTAL', 'Valor (R$)': total })
+
+  const ws1 = XLSX.utils.json_to_sheet(data)
+  XLSX.utils.book_append_sheet(wb, ws1, 'Ofertas Especiais')
+
+  // Aba de resumo por motivo
+  const motivos = [...new Set(ofertas.map(o => o.motivo).filter(Boolean))]
+  const resumo = motivos.map(m => {
+    const sub = ofertas.filter(o => o.motivo === m).reduce((s, o) => s + parseFloat(o.valor || 0), 0)
+    return { 'Motivo/Evento': m, 'Total (R$)': sub }
+  })
+  resumo.push({ 'Motivo/Evento': 'TOTAL GERAL', 'Total (R$)': total })
+
+  const ws2 = XLSX.utils.json_to_sheet(resumo)
+  XLSX.utils.book_append_sheet(wb, ws2, 'Resumo por Motivo')
+
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+  saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `ofertas-especiais-${nomeMes}-${ano}.xlsx`)
+}
+
 export function gerarExcelFinanceiro(entradas, mes, ano) {
   const nomeMes = MESES[mes - 1]
   const wb = XLSX.utils.book_new()

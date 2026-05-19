@@ -20,6 +20,8 @@ function Navbar() {
         <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/">Dashboard</NavLink>
         <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/membros">Membros</NavLink>
         <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/entradas">Dízimos</NavLink>
+        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/ofertas">Ofertas</NavLink>
+        <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/ofertas-especiais">Of. Especiais</NavLink>
         <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/aniversariantes">Aniversariantes</NavLink>
         <NavLink className={({ isActive }) => 'link' + (isActive ? ' active' : '')} to="/relatorios">Relatórios</NavLink>
         <button className="btn-sair" onClick={signOut}>Sair</button>
